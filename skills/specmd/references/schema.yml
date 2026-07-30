@@ -1,4 +1,6 @@
 # SPEC.md Schema Definition
+# ----------------------------
+# ID: specmd
 # Version: 2026-07-28
 #
 # SPEC.md is a lightweight, agent-optimized specification format for describing
@@ -108,6 +110,12 @@ frontmatter:
   type: '"web" | "mobile" | "desktop" | "api" | "library" | "cli" | "service" | "system" | string'
   # Accepts any string for extensibility.
 
+  schema: '"specmd" | "adhoc" | "(other)" | null'
+  # Default: "specmd"
+  # Should be omitted in most cases.
+  # User can define their own or specify their own schema
+  # This only applies to body
+
   extends-schema: '[string]?'
   # Extension schema files that add or override sections for this spec.
   # Examples:
@@ -174,17 +182,29 @@ frontmatter:
     #   - spec: ../ops/deployment.spec.md
     #     reason: Shares deployment pipeline
 
-  # -- Meta (LLM-IGNORE) -------------------------------------------------------
-  # The LLM MUST skip ALL fields under `meta` in every phase.
-  # Human reference and version history only. Never used in planning or codegen.
+  # -- Instructions ------------------------------------------------------------
+  # Instructions for the agent to follow when editing the spec.
+  # This may include compacting rules and restrictions.
 
-  meta:
+  instructions: string?
+  # Example:
+  # When compacting, keep the last 10 items in Issues, remove the rest.
+
+  # -- Metadata ----------------------------------------------------------------
+  # Agents may only edit the created or updated fields if explicitly requested to do so.
+
+  metadata:
     author: string?
     created: string?   # yyyy-mm-dd
     updated: string?   # yyyy-mm-dd
-    changelog: '[string]?'
-    # - "2025-07-01: Initial draft"
-    # - "2025-07-18: Migrated to FlexSpec format"
+
+  # -- Changelog ---------------------------------------------------------------
+  # Version history.
+  # Agents may only append a new item if explicitly requested to do so.
+
+  changelog: '[string]?'
+  # - "2025-07-01: Initial draft"
+  # - "2025-07-18: Provided detail to API section"
 
 
 # ==============================================================================
@@ -458,7 +478,7 @@ body:
         Follows the spectrum principle: entries may be conceptual descriptions
         or concrete specifications with schemas, handlers, and behavior details.
         Note: if the same subsections appear repeatedly across multiple specs,
-        consider formalizing them as a FlexSpec extension schema instead.
+        consider formalizing them as an extension schema instead.
 
       subsections:
         events:
@@ -979,15 +999,16 @@ extension_schema:
     - "Add new organizing patterns to existing sections"
 
   example_structure: |
-    # flexspec-functions.yaml
+    # schema-functions.yaml
     # Extension schema for Azure Functions / AWS Lambda
 
-    extends: flexspec-schema.yaml
+    extends: schema.yaml
 
     sections:
 
       functions:
         heading: "## Functions"
+        aliases: ["## Lambdas", "## Cloud Functions"]
         description: >
           Defines serverless function handlers and their trigger configurations.
           May range from function names and trigger types only to full
@@ -1034,7 +1055,7 @@ extension_schema:
 
 artifacts:
   folder: ".specmd/"
-  note: Commit this folder to version control. Execution plans are disposable.
+  note: Committing this folder to version control is optional. Execution plans are disposable.
   contents:
     codebase_summary: "codebase.md -- codebase snapshot, updated each Plan phase"
     execution_plan:   "{spec-id}-plan-{yyyymmdd}-{n}.md -- implementation checklist"

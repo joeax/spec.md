@@ -4,6 +4,12 @@ SPEC.md is a simple, minimalist, open format for spec-driven development. Write 
 
 > SPEC.md is the successor to [Vibespec](https://github.com/joeax/vibespec)
 
+## Explore
+
+* Full [specification](specification.md) for the SPEC.md format.
+* Example [template](template.md) file to preview the format and syntax.
+
+
 ## Problem Statement
 
 Spec-driven development was meant to fill a void in the AI-assisted software development workflow, a natural progression from ad hoc prompt engineering methods. However, many existing spec frameworks are heavy and opinionated, while being designed for large, enterprise teams. In addition, product requirements documents (PRDs) and software requirements documents (SRDs) are often too high-level, human-centered, and lack the detail needed for effective code generation. 
@@ -138,12 +144,12 @@ Let's say your project is a backend microservice written in Python and using Fas
 A SPEC.md document is structured with a specific format that includes frontmatter, a title, description, specification, and sections. The structure is designed to be flexible and can be adapted to fit the needs of the software system being described.
 
 > Browse the full [SPEC.md format](specification.md) for more details.
+> Browse the [template](template.md) file to preview the format and syntax, or use as a starting point.
 
 ### Simple Example
 
 ```markdown
 # Tetris Clone
-
 This is a spec for a Tetris clone that allows users to play the classic game in their web browser.
 The game should have a simple UI, support keyboard controls, and keep track of the score. It should be 
 built using vanilla JavaScript and TypeScript.
@@ -159,13 +165,13 @@ id: tetris-clone
 version: 2026-07-28
 scope: project
 status: draft
-type: web
-languages: TypeScript, HTML
-frameworks: none 
+tech:
+    type: web
+    languages: TypeScript, HTML
+    frameworks: none 
 ---
 
 # Tetris Clone
-
 This is a spec for a Tetris clone that allows users to play the classic game in their web browser. The game should have a simple UI, support keyboard controls, and keep track of the score. It should be built using vanilla JavaScript and TypeScript.
 
 ## Requirements
@@ -187,6 +193,11 @@ SPEC.md is role-agnostic, but it's important to clarify the roles of the agents 
 | QA Engineer | Tests the software to ensure it meets the specifications and quality standards. | Testing, Issues |
 | DevOps Engineer | Manages deployment, CI/CD pipelines, and infrastructure. | Deployment |
 
+### Spectrum Principle
+
+Every section exists on a spectrum from conceptual to concrete. You are free to choose the degree of granularity and detail you want to provide in each section. The key is to provide enough information for the agents to understand the intent of the software system, while leaving room for them to infer or fill in the gaps.
+
+For more information, see [Specification > Sections > Spectrum Principle](specification.md#spectrum-principle).
 
 ## Spec Management
 
@@ -204,19 +215,18 @@ Avoid the "everything under the sun" doomed waterfall mentality forced by other 
 
 Similar to how you can structure AGENTS.md files, consider breaking up SPEC.md files. Have the root SPEC.md describe the intent of the whole system, then individual SPEC.md files for each module or subproject. 
 
-
-
-## Templates
+## Examples
 
 TBD
 
 ## Best Practices
 
 - Use the Snowflake Method described above: start with a few sentences, then iterate as needed.
-- Resist the urge to document every facet. Focus on key features, user stories, and high-level architecture. Let the agents fill in the gaps.
+- Resist the urge to document every facet. Focus on key features, user stories, and high-level architecture. Let the agents fill in the gaps or infer from context.
 - Keep your SPEC.md files lean and mean. Too much bloat raises token costs. If you find becoming overly descriptive or with too much overlap, summarize it down.
 - Avoid spec drift by regularly syncing your SPEC.md file with the codebase.
-- Prefer generating a plan document rather than directly implementing a change. This 2-step approach allows you review the plan document before proceeding.
+- Prefer generating a plan document rather than directly implementing a change. This 2-step approach allows you to review the plan document before proceeding.
+- Avoid implementing massive changes all at once. This may exceed your context window and/or overload the agent. Implement things as a human would: in small, incremental steps.
 - Periodically check for updates to the `specmd` skill.
 - Keep coding conventions, restrictions, and rules in your coding agent's instruction files/system prompts/AGENTS.md file.
 
@@ -224,7 +234,7 @@ TBD
 
 It's important to note that SPEC.md is not trying to compete with other spec-driven frameworks. Instead, it is designed to be a lightweight, flexible, and agent-optimized alternative for small teams and projects. As a matter of fact, in some cases you may be able to fit SPEC.md with other spec-driven agentic workflows.
 
-> If you find the SPEC.md file growing in size and complexity, you want want to consider one of these other spec-driven development formats that are more suitable for larger teams and projects.
+> If you find the SPEC.md file growing in size and complexity, you want want to consider one of these other spec-driven development workflows that are more suitable for larger teams and projects.
 
 ### Comparison Table
 

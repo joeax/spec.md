@@ -1,0 +1,195 @@
+# PLAN.md Schema Definition
+# -------------------------
+# ID: specmd-plan
+# Version: 2026-07-29
+#
+# PLAN.md is an agent-oriented execution artifact generated from a
+# (SPEC.md) file. It captures a concise implementation summary, a complete
+# actionable task checklist, and implementation notes for assumptions,
+# clarifications, and constraints.
+#
+# Filename: plan-{yyyymmdd}-{n}.md (recommended)
+#
+# SCHEMA NOTATION
+#   type?        = optional
+#   [type]       = list of type
+#   "a" | "b"    = string enum
+#
+# SOURCE-OF-TRUTH RULE
+#   The plan MUST be derived from the entire source spec, not one section.
+#   Items from Requirements, Features, User Stories, UI, API, Database,
+#   Testing, Setup, Deployment, and Issues are all in scope.
+#
+# TASK COMPLETENESS RULE
+#   The Tasks section MUST include every actionable change implied by the spec.
+#   If an item is intentionally not implemented, it remains listed with an
+#   appropriate status marker and explanation in Implementation Notes.
+
+---
+
+# ==============================================================================
+# FRONTMATTER
+# YAML block between triple-dash fences at the top of the plan file.
+# All fields are optional unless noted.
+# ==============================================================================
+
+frontmatter:
+
+  id: string?
+  # Unique execution plan identifier.
+  # Example: "plan-20260729-001"
+
+  description: string?
+  # Brief one-line purpose for the plan.
+  # Example: "Implement CRM dashboard MVP UI and API wiring."
+
+  generated: string?
+  # Date the plan was generated.
+  # Format: yyyy-mm-dd
+
+  state: '"ready" | "partial" | "completed" | "blocked"'
+  # Overall execution readiness/state for the plan document.
+
+  spec: string?
+  # Optional reference ID of the originating SPEC.md.
+  # If there are duplicate IDs across specs, also include the path to the originating SPEC.md to disambiguate.
+
+  metadata:
+    author: string?
+    updated: string?  # yyyy-mm-dd
+
+
+# ==============================================================================
+# BODY
+# Standard markdown following the frontmatter block.
+# ==============================================================================
+
+body:
+
+  title:
+    format: "# Execution Plan"
+    required: true
+    note: Canonical heading for plan documents.
+
+  sections:
+
+    summary-of-changes:
+      heading: "## Summary of Changes"
+      aliases: ["## Summary"]
+      required: true
+      description: >
+        Brief bulleted summary of all major changes, features, and requirements
+        to be implemented. Content is extracted from the entire source spec,
+        not only Requirements.
+      format:
+        preferred: markdown bullets
+        allowed:
+          - "- item"
+      rules:
+        - "Keep concise and high signal; avoid low-level implementation detail."
+        - "Cover major scope across all relevant spec sections."
+
+    tasks:
+      heading: "## Tasks"
+      aliases:
+        - ["## Checklist"]
+      required: true
+      description: >
+        Detailed checklist of every actionable requirement, feature, and change
+        to implement from all relevant sections, including UI, API, Database,
+        Testing, Setup, Deployment, and related constraints.
+      format:
+        required_prefixes:
+          - "- [ ]"
+          - "- [X]"
+          - "- [P]"
+          - "- [D]"
+          - "- [C]"
+        examples: |
+          - [ ] Implement customer list page and filters.
+          - [X] Create API client service and error wrapper.
+          - [P] Add pagination (UI complete; server cursor handling pending).
+          - [D] Add SSO integration (deferred to identity milestone).
+          - [C] Confirm canonical source for exchange rates.
+      status_markers:
+        "[ ]": Not started
+        "[X]": Complete
+        "[P]": Partial
+        "[D]": Deferred
+        "[C]": Clarification needed
+      rules:
+        - "Every actionable item from the source spec must appear exactly once."
+        - "Items may be grouped by subsection labels if helpful."
+        - "Non-actionable context belongs in Implementation Notes, not Tasks."
+
+    implementation-notes:
+      heading: "## Implementation Notes"
+      aliases: []
+      required: true
+      description: >
+        Notes for assumptions, clarifications, constraints, deliberate omissions,
+        unresolved dependencies, and reasons for deferred/partial items.
+      format:
+        preferred: markdown bullets
+      rules:
+        - "Document why an item is [D], [P], or [C] when not obvious from task text."
+        - "Record key restrictions (technical, policy, environment, ownership)."
+        - "Avoid repeating full task text; reference task intent concisely."
+
+
+# ==============================================================================
+# COVERAGE MAPPING (GUIDANCE)
+# Maps source SPEC.md sections to expected plan outputs.
+# ==============================================================================
+
+coverage:
+  requirements:
+    summary-of-changes: required
+    tasks: required
+    implementation-notes: optional
+
+  features:
+    summary-of-changes: required
+    tasks: required
+
+  user-stories:
+    summary-of-changes: optional
+    tasks: required
+
+  ui:
+    summary-of-changes: required when present
+    tasks: required when actionable
+
+  api:
+    summary-of-changes: required when present
+    tasks: required when actionable
+
+  database:
+    summary-of-changes: required when present
+    tasks: required when actionable
+
+  testing:
+    summary-of-changes: optional
+    tasks: required when explicit or implied by critical/high requirements
+
+  setup:
+    tasks: required when setup changes are needed
+
+  deployment:
+    tasks: required when deployment changes are in scope
+
+  issues:
+    tasks: required for open items when they are in current scope
+
+
+# ==============================================================================
+# VALIDATION CHECKLIST (GUIDANCE)
+# ==============================================================================
+
+validation:
+  - "Body includes all required sections: Summary of Changes, Tasks, Implementation Notes."
+  - "Tasks use only allowed status markers: [ ], [X], [P], [D], [C]."
+  - "Tasks reflect actionable scope across all relevant source spec sections."
+  - "Deferred, partial, or unclear items are explained in Implementation Notes."
+  - "No secrets are included in notes or task text."
+
