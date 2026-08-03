@@ -1057,6 +1057,5 @@ artifacts:
   folder: ".specmd/"
   note: Committing this folder to version control is optional. Execution plans are disposable.
   contents:
-    codebase_summary: "codebase.md -- codebase snapshot, updated each Plan phase"
     execution_plan:   "{spec-id}-plan-{yyyymmdd}-{n}.md -- implementation checklist"
 
