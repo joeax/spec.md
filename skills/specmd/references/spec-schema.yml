@@ -31,6 +31,38 @@
 #     (2) Markdown bullet list:    - TypeScript\n- Python
 #     (3) Subsections:             ### TypeScript\n  description...
 #
+# TAG SYNTAX
+#   `[tagname]` bracket notation is a universal convention, usable in any
+#   section that defines its own tag vocabulary -- not exclusive to any
+#   one section. Each section defines its own enum and meaning:
+#     Requirements  -> priority:  [critical] [high] [normal] [low]
+#     Issues        -> status:    [open] [fixed] [deferred] [wont-fix]
+#   Placement (start of line, end of heading, or inline before a comma-
+#   delimited run) and default-when-omitted behavior are defined per section.
+#   A tag vocabulary from one section does not apply in another. Sections
+#   without a defined vocabulary carry no tags.
+#
+# CONTENTS PATTERN
+#   Default (ungrouped): a section's main entries may be listed directly
+#   under its H2 heading -- flat bullets or paragraphs, no wrapper
+#   subsection required. This is the common case and stays minimal.
+#   Subdividing: if entries grow enough to need named subcategories, they
+#   move into a "### Contents | Entries" subsection, then use custom H4
+#   headings inside it, one per group. Main content is never subdivided
+#   directly under the H2 -- subdividing always means moving into Contents
+#   first. This keeps "flat under H2" and "grouped under H4" unambiguous
+#   at a glance, with nothing subdivided in between.
+#   "Entries" is always a valid generic alias alongside "Contents."
+#   Sections may additionally alias Contents to a section-specific name
+#   (e.g. User Stories -> ### Stories). The underlying pattern is identical
+#   everywhere; only the label changes.
+#   This is distinct from a section's other structural subsections (e.g.
+#   User Flow, Personas, Assumptions) -- those hold different content
+#   entirely, not a subdivision of the main entries, and are never
+#   nested inside Contents.
+#   Sections that support this pattern say so explicitly; it is not implied
+#   for sections that don't mention it.
+#
 # CUSTOM SUBSECTIONS
 #   Any section may contain custom subsections beyond those prescribed here.
 #   Custom subsections are valid as long as they do not shadow a prescribed
@@ -54,9 +86,17 @@
 #   included but flagged in the execution plan as "not formally required."
 #
 # EXISTING vs NEW INFRASTRUCTURE
-#   UI, API, and Database sections may describe existing infrastructure
-#   to consume OR new infrastructure to build. The LLM infers from context.
-#   When ambiguous, flag in Plan phase and ask before generating.
+#   ## UI may describe an existing UI to consume OR a new one to build.
+#   The LLM infers from context. When ambiguous, flag in Plan phase and ask
+#   before generating. (## API and Functionality/Database don't carry this
+#   ambiguity -- API is scoped to what this component owns and exposes;
+#   anything consumed belongs in ## External Interfaces instead.)
+#
+# DEFERS TO AGENT INSTRUCTIONS
+#   SPEC.md defines what and why. How to work -- coding conventions,
+#   principles, house style -- is never restated here. Defer entirely to
+#   AGENTS.md, CLAUDE.md, or whatever core instruction file the assistant
+#   or framework already uses.
 #
 # SECRETS POLICY
 #   The LLM must NEVER generate, suggest, or infer actual secret values
@@ -74,6 +114,8 @@
 #   The spec frontmatter declares which extensions apply via `extends-schema`.
 #   Examples:
 #     schema-functions.yaml    Azure Functions / AWS Lambda
+#     schema-database.yaml     Standalone database specs (schema, stored
+#                              procs, indexes, seeds, triggers, views)
 #     schema-terraform.yaml    Terraform modules
 #     schema-library.yaml      Class / component libraries
 #     schema-cli.yaml          CLI tools
@@ -110,11 +152,14 @@ frontmatter:
   type: '"web" | "mobile" | "desktop" | "api" | "library" | "cli" | "service" | "system" | string'
   # Accepts any string for extensibility.
 
-  schema: '"specmd" | "adhoc" | "(other)" | null'
-  # Default: "specmd"
-  # Should be omitted in most cases.
-  # User can define their own or specify their own schema
-  # This only applies to body
+  schema: '"specmd" | "adhoc" | string?'
+  # Default: "specmd" (implied when omitted -- validates against this schema).
+  # "adhoc": freeform spec, no schema conformance expected or enforced.
+  #          The agent reads content as-is -- no heading/structure validation,
+  #          no warnings about unrecognized sections.
+  # string:  Name or path to a custom/forked schema file (e.g. "my-schema.yaml").
+  #          Same loading mechanism as extends-schema, but replaces the base
+  #          schema entirely rather than adding to it.
 
   extends-schema: '[string]?'
   # Extension schema files that add or override sections for this spec.
@@ -128,6 +173,9 @@ frontmatter:
   # Machine-readable technical metadata.
   # Replaces a ## Specifications / ## Specs body section.
   # All fields accept inline comma-delimited string or YAML list.
+  # Treated as a starting point, not the final word -- ## Requirements /
+  # ### Technical is authoritative if the two contradict. Conflicts are
+  # surfaced in the Plan phase, never silently resolved.
 
   tech:
 
@@ -191,20 +239,34 @@ frontmatter:
   # When compacting, keep the last 10 items in Issues, remove the rest.
 
   # -- Metadata ----------------------------------------------------------------
-  # Agents may only edit the created or updated fields if explicitly requested to do so.
 
-  metadata:
-    author: string?
-    created: string?   # yyyy-mm-dd
-    updated: string?   # yyyy-mm-dd
+  metadata: object?
+  # Arbitrary key-value mapping, following the SKILL.md convention.
+  # No fixed schema -- any keys are valid. Common keys: author, created,
+  # updated (yyyy-mm-dd), owner, tags.
+  # Write-restricted by default: the agent reads these values but does not
+  # add, edit, remove, or clean up keys unless explicitly instructed to in
+  # the current request. Standing permission (e.g. "always keep `updated`
+  # current") may be granted via the `instructions` field below.
+  # Example:
+  #   metadata:
+  #     author: Joe Agster
+  #     created: 2025-07-01
+  #     updated: 2025-07-18
+  #     owner: platform-team
 
   # -- Changelog ---------------------------------------------------------------
-  # Version history.
+  # Human-readable version history. A convenience only -- git commit history
+  # on the spec file is the actual source of truth for change tracking.
+  # Kept as its own top-level field (not nested under metadata) since it's a
+  # list of dated entries, not a flat property -- frontmatter nesting is kept
+  # to one level throughout.
   # Agents may only append a new item if explicitly requested to do so.
 
   changelog: '[string]?'
-  # - "2025-07-01: Initial draft"
-  # - "2025-07-18: Provided detail to API section"
+  # Format: "[yyyy-mm-dd] description"
+  # - "[2026-07-01] Initial draft"
+  # - "[2026-07-18] Added user stories"
 
 
 # ==============================================================================
@@ -272,7 +334,9 @@ body:
 
       priority_tags:
         note: >
-          Annotate individual items (start of line) or section headings (end).
+          Annotate individual items (start of line), section/subsection
+          headings (end), or inline comma-delimited runs. In inline form,
+          a tag applies to all items until the next tag appears in the list.
           Omitted tag implies [normal].
         tags:
           "[critical]": Must implement. Blocking. Unacceptable to omit.
@@ -289,6 +353,9 @@ body:
           #### Performance [critical]
           - Pages must load within 2 seconds on a 4G connection.
 
+          [high] Support CSV export, support bulk delete, [low] add dark mode
+          <- inline form: [high] applies to the first two items, [low] to the third
+
       subsections:
         functional:
           heading: "### Functional"
@@ -296,13 +363,34 @@ body:
 
         non-functional:
           heading: "### Non-Functional"
-          aliases: ["### Technical"]
+          aliases: []
           description: >
-            How the system must behave. Performance, security, reliability,
-            scalability, compliance. Custom subsections encouraged here
-            (e.g. #### Performance, #### Security, #### Compliance).
-            Note: avoid placing custom subsections directly under
-            ## Requirements -- nest them under ### Non-Functional instead.
+            Quality attributes: how the system must behave, not what it must
+            do. Performance, reliability, availability, scalability,
+            usability, security-as-a-quality, compliance. Testable as a
+            spectrum (e.g. "under 200ms at p95"), not a binary mandate.
+            Custom subsections encouraged here (e.g. #### Performance,
+            #### Security, #### Compliance). Note: avoid placing custom
+            subsections directly under ## Requirements -- nest them under
+            ### Non-Functional or ### Technical instead.
+            Distinct from ### Technical: Non-Functional is measurable
+            quality, Technical is binary mandate.
+
+        technical:
+          heading: "### Technical"
+          description: >
+            Imposed constraints and mandates -- binary conformance, not a
+            measurable spectrum like Non-Functional. Use for integration
+            requirements, deployment/environment constraints, and
+            organizational policy mandates -- not stack choices, which
+            belong in frontmatter `tech:` (that's a starting point;
+            this subsection is the final authority if they contradict --
+            surface the conflict in Plan phase rather than silently
+            resolving it).
+          example: |
+            - Must integrate with the legacy SOAP-based inventory system.
+            - Must deploy to the existing on-prem Kubernetes cluster.
+            - Must authenticate via the company's Okta SSO tenant.
 
         out-of-scope:
           heading: "### Out of Scope"
@@ -318,6 +406,54 @@ body:
             an active requirement without adding significant complexity.
 
     # --------------------------------------------------------------------------
+    considerations:
+      heading: "## Considerations"
+      aliases: []
+      category: product
+      description: >
+        Contextual signals that inform the system without mandating it.
+        Not testable requirements -- those belong in ## Requirements. Not
+        structural design. Use for: deployment context, user population,
+        organizational constraints, regulatory environment, known risks,
+        team conventions, or anything the LLM should keep in mind while
+        planning and implementing. Includes legacy context: facts about a
+        prior system or requirement that no longer apply directly but still
+        shape design decisions today (e.g. a retired integration whose
+        downstream consumers haven't caught up yet).
+        Main entries go directly under this H2 (flat bullets or paragraphs,
+        no wrapper subsection). Use ### Contents | Entries only if entries
+        grow enough to need named subgroups (see Contents Pattern).
+
+      subsections:
+        assumptions:
+          heading: "### Assumptions"
+          description: >
+            Things taken as true for planning purposes. If false, requirements
+            elsewhere in the spec may need to change. Distinct from main
+            Considerations entries: an assumption is a premise the spec
+            depends on, not just background context.
+          example: |
+            - We are never going back to the v1.2 wizard-based interface.
+
+        dependencies:
+          heading: "### Dependencies"
+          description: >
+            External factors this spec relies on that are outside the
+            team's direct control -- another team's deliverable, a
+            third-party service's availability, a platform migration
+            completing on schedule.
+          example: |
+            - Depends on the platform team's Q3 auth migration completing
+              before SSO can be enabled.
+
+      example: |
+        - We dropped legacy feature X 2 years ago after the acquisition.
+        - We may bring back support for Y feature.
+
+        ### Assumptions
+        - We are never going back to the v1.2 wizard-based interface.
+
+    # --------------------------------------------------------------------------
     user-stories:
       heading: "## User Stories"
       aliases: ["## Stories"]
@@ -326,10 +462,48 @@ body:
         How users interact with the system. Intentionally overlaps with Features.
         Format: "As a [user], I want to [action] so that [benefit]."
         Users may be human actors or external systems.
+        Main entries go directly under this H2 (flat, no wrapper subsection)
+        by default. Use ### Contents | Entries (aliased here to ### Stories)
+        only once flat entries need named subgroups (see Contents Pattern).
       llm_note: >
         Supplementary to Requirements. Provides UX detail and acceptance signals.
 
       subsections:
+        personas:
+          heading: "### Personas | Actors"
+          description: >
+            Short definitions of the actor types referenced in stories --
+            name, role, one line of context. Optional. Lets stories reference
+            an actor (e.g. "As an [Admin]...") without re-explaining who that
+            is each time.
+          example: |
+            - **Admin**: manages catalog and orders.
+            - **Guest**: browses without an account.
+
+        stories:
+          heading: "### Stories | Contents | Entries"
+          description: >
+            The Contents Pattern (see schema header) applied to this section.
+            Only used once stories need named subgroups -- otherwise stories
+            live directly under ## User Stories (see section description).
+            Custom H4 headings inside, one per theme/epic/feature area,
+            each holding its own entries.
+          acceptance_criteria_pairing: >
+            Acceptance criteria may nest directly under a story as indented
+            checkbox sub-bullets (JIRA-style pairing) -- the recommended
+            form when criteria are specific to one story. Criteria that
+            apply globally across all stories instead belong in the
+            sibling ### Acceptance Criteria subsection below.
+          example: |
+            #### Search Page
+            - As a [Guest], I want to search products so I can find what I need.
+              - [ ] Search returns results within 2s
+              - [ ] Empty search shows a "no results" message
+
+            #### User Profile Page
+            - As an [Admin], I want to edit a user's role so I can manage access.
+              - [ ] Role change is audit-logged
+
         user-flow:
           heading: "### User Flow | Flow"
           description: >
@@ -339,31 +513,14 @@ body:
         acceptance-criteria:
           heading: "### Acceptance Criteria | Acceptance"
           description: >
-            Specific, testable completion conditions.
-            Recommended format: - [ ] checkbox.
-            May be flat (global to all stories) or nested per story.
+            Testable completion conditions that apply globally across all
+            stories, not to one specific story. Format: - [ ] checkbox.
+            For criteria specific to a single story, nest them under that
+            story in ### Stories instead (see acceptance_criteria_pairing).
             [critical] and [high] requirements without explicit criteria
             still imply mandatory test coverage.
-
-    # --------------------------------------------------------------------------
-    considerations:
-      heading: "## Considerations"
-      aliases: []
-      category: product
-      description: >
-        Contextual signals that inform the system without mandating it.
-        Not testable requirements. Not structural design.
-        Use for: deployment context, user population, organizational constraints,
-        regulatory environment, known risks, team conventions, assumptions,
-        or anything the LLM should keep in mind while planning and implementing.
-      subsections: custom only
-      example: |
-        - This system will be used by non-technical staff -- keep UI language plain.
-        - Initial rollout is to 50 pilot users; scale to 10,000+ in Q3.
-        - The team follows trunk-based development -- avoid long-lived branches.
-        - GDPR applies -- no PII may be logged.
-        - The existing backend team owns the API contract; frontend must not
-          propose API changes without cross-team review.
+          example: |
+            - [ ] All destructive actions require confirmation.
 
     # ==========================================================================
     # DESIGN SECTIONS
@@ -405,7 +562,12 @@ body:
         A spec may have no database in scope; the domain model stands independently.
         Mermaid ER and UML class diagrams supported inline.
       llm_note: >
-        Domain = logical model. Database = physical storage. Never collapse these.
+        Domain is the logical model, independent of physical storage.
+        Connection-level storage detail belongs to ## External Interfaces;
+        full storage design (schema, stored procedures, etc.) belongs to
+        the database owner's own spec or the schema-database extension.
+        Never collapse Domain into any of these -- it stands on its own
+        even when a spec has no database in scope at all.
 
       subsections:
         entities:
@@ -460,157 +622,103 @@ body:
                 x: Float
                 y: Float
 
-
-
     # --------------------------------------------------------------------------
-    functionality:
-      heading: "## Functionality"
-      aliases:
-        - "## Functional Design"
-        - "## Functional"
+    external-interfaces:
+      heading: "## External Interfaces"
+      aliases: ["## External Dependencies", "## Interfaces"]
       category: design
       description: >
-        Catch-all design section for functional behavior not covered by UI, API,
-        or Database. Use for niche app types, cross-cutting concerns, or any
-        system behavior that doesn't fit cleanly elsewhere.
-        Subsections below are non-exhaustive prescribed options -- use any
-        combination, add custom subsections freely, or write free-form prose.
-        Follows the spectrum principle: entries may be conceptual descriptions
-        or concrete specifications with schemas, handlers, and behavior details.
-        Note: if the same subsections appear repeatedly across multiple specs,
-        consider formalizing them as an extension schema instead.
+        Systems, services, and interfaces this component depends on but does
+        not own or control -- borrowed from the SRD convention of the same
+        name (there, split into Hardware/Software/Communications Interfaces;
+        User Interfaces is covered separately by ## UI in this schema).
+        Covers: third-party APIs and services (Stripe, Twilio, SendGrid,
+        OAuth providers), a backend API a frontend consumes, hardware
+        interfaces (sensors, printers, kiosk peripherals, IoT devices),
+        databases this component connects to (connection-level detail only
+        -- schema, stored procedures, and other storage-design detail
+        belong to ## Functionality/Database, the database owner's own spec,
+        or the schema-database extension for standalone database specs),
+        and communications interfaces (email/SMS gateways, inbound webhooks
+        from outside).
+        Placed before ## UI: these dependencies may indirectly drive UI
+        design (a third-party payment widget, a hardware constraint) even
+        though the relationship isn't always direct.
+      llm_note: >
+        When a dependency already has its own linked spec (frontmatter
+        `links`), this section may still restate the contract here for
+        convenience -- doing so is allowed, not required. On conflict
+        between the restated contract and the linked spec, the linked
+        spec is authoritative; flag the discrepancy in Plan phase.
+      subsections: custom only
+      example: |
+        ### Orders API (backend)
+        REST. Base URL: /api/v1/orders. See ../orders-service/SPEC.md for
+        the full contract; consumed endpoints: GET /orders, POST /orders.
 
-      subsections:
-        events:
-          heading: "### Events | Event Handlers"
-          description: >
-            Reactive event handlers, pub/sub subscribers, inbound webhooks,
-            and any logic triggered by external or internal events.
+        ### Stripe
+        Payment processing. Webhook: /webhooks/stripe (payment_intent.succeeded).
 
-        triggers:
-          heading: "### Triggers"
-          description: >
-            Non-HTTP entry points: timer/cron, blob storage, queue arrival,
-            database change feed (CDC), cloud events. Common in serverless
-            and function app contexts.
-
-        jobs:
-          heading: "### Jobs | Scheduled Tasks | Batch"
-          description: >
-            Recurring or one-off batch processes, background tasks, and
-            scheduled workloads. Distinct from Triggers in that jobs are
-            typically process-oriented rather than event-reactive.
-
-        messaging:
-          heading: "### Messaging"
-          description: >
-            Message producers, consumers, topic/queue contracts, message schemas,
-            retry policies, and dead-letter handling.
-
-        workflows:
-          heading: "### Workflows | Orchestration"
-          description: >
-            Multi-step processes, sagas, state machines, durable functions,
-            and long-running orchestrations.
-
-        integrations:
-          heading: "### Integrations"
-          description: >
-            Third-party service connections and contracts
-            (e.g. Stripe, Salesforce, SendGrid, Twilio, OAuth providers).
-
-        notifications:
-          heading: "### Notifications"
-          description: >
-            Email, SMS, push, and in-app notification logic, templates,
-            delivery rules, and provider configuration.
-
-        file-processing:
-          heading: "### File Processing"
-          description: >
-            Upload handling, file parsing, format transformation,
-            and export pipelines.
-
-        data-pipeline:
-          heading: "### Data Pipeline | ETL | ELT"
-          description: >
-            Data sources, transformation logic, and sinks.
-            Scheduling and orchestration of data flows.
-
-        workers:
-          heading: "### Workers | Background Workers"
-          description: >
-            Long-running background processes, daemon tasks, and
-            worker queue consumers that operate outside the request cycle.
-
-        cache:
-          heading: "### Cache | Caching"
-          description: >
-            Caching strategy, cache keys, invalidation rules, TTL policies,
-            and cache provider configuration.
-
-        search:
-          heading: "### Search"
-          description: >
-            Search indexing strategy, query patterns, filters, facets,
-            and relevance tuning.
-
-        analytics:
-          heading: "### Analytics | Reporting"
-          description: >
-            Metrics collection, event tracking, report generation logic,
-            and dashboard data contracts.
-
-        algorithms:
-          heading: "### Algorithms | Business Logic"
-          description: >
-            Custom algorithms, scoring and ranking logic, calculation engines,
-            rules engines, and ML model inference.
-
-        security:
-          heading: "### Security"
-          description: >
-            Cross-cutting authentication, authorization, encryption, audit
-            logging, and compliance controls not covered in API or Database.
-            May also appear under Requirements/Non-Functional -- LLM merges both.
-
-        configuration:
-          heading: "### Configuration | Feature Flags"
-          description: >
-            Runtime configuration surface, feature flag definitions,
-            environment-specific behavior, and config provider integration
-            (e.g. AWS Parameter Store, Azure App Configuration, LaunchDarkly).
-
-        scripts:
-          heading: "### Scripts"
-          description: >
-            Utility scripts, migration scripts, admin tooling, and
-            one-off automation not part of the main application runtime.
+        ### Receipt Printer
+        ESC/POS thermal printer via USB. See vendor SDK docs for command set.
 
     # --------------------------------------------------------------------------
     ui:
       heading: "## UI"
       aliases:
-        - "## Interface"
         - "## Frontend"
         - "## UX"
       category: design
       description: >
-        User interface design. May range from conceptual (intent, layout, named
-        pages) to concrete (exact component names, props, file paths, framework
-        specifics). The LLM matches implementation depth to detail provided.
+        User interface design, for any UI paradigm -- web, mobile, desktop,
+        embedded/widget, kiosk, voice/IVR, AR/VR, CLI/TUI, or anything else.
+        May range from conceptual (intent, layout, named units) to concrete
+        (exact component names, props, file paths, framework specifics) --
+        the spectrum principle applies per subsection, so e.g. Components
+        may be described purely logically or as physical framework-specific
+        artifacts (a React component tree), whichever fits.
         May describe an existing UI to consume or a new UI to build.
         Diagrams, wireframes, image links, and Mermaid flows supported.
+        No Contents Pattern here -- UI has several parallel subsections
+        rather than one dominant content stream, so there's nothing for a
+        Contents wrapper to disambiguate. Entries may be listed directly
+        under ## UI itself with no subsections at all (flat bullets or a
+        description), as long as no subsections are also present -- this
+        applies to any section, not just UI.
 
       subsections:
         layout:       "### Layout       - Overall structure, regions, grid, header/footer/sidebar."
+
         pages:        "### Pages        - Logical or physical pages. Web applications."
         screens:      "### Screens      - Logical or physical screens. Mobile applications."
         windows:      "### Windows      - Top-level windows or frames. Desktop applications."
         views:        "### Views        - View definitions. MVC/MVVM and cross-platform contexts."
-        components:   "### Components   - UI components, conceptual or concrete."
+        # Pages/Screens/Windows/Views are independent, not aliases of one
+        # another -- a hybrid or multi-target spec may use more than one
+        # simultaneously (e.g. a web/desktop hybrid app using both Pages
+        # and Windows). The LLM infers which physical construct applies to
+        # which build target rather than the spec being forced to pick one.
+
+        components:
+          heading: "### Components"
+          description: >
+            UI components, logical or physical (per spectrum principle --
+            both are valid, including a fully framework-concrete component
+            tree). May be grouped under custom H4 headings if the list
+            grows large enough to need it -- no wrapper subsection required.
+            An optional ### Implementation heading may nest under an
+            individual component for framework-specific code details kept
+            separate from a more conceptual description, but this is
+            discouraged -- inline detail within the component entry is
+            preferred in the common case.
+
         widgets:      "### Widgets      - Self-contained UI units. Flutter, Android, desktop."
         viewgroups:   "### ViewGroups   - Container/layout groupings. Android and hierarchical UI."
+        # Independent of Components and of each other for the same reason
+        # as Pages/Screens/Windows/Views -- coexist freely when the design
+        # calls for the distinction (e.g. Android specs using ViewGroups
+        # alongside general Components).
+
         navigation:   "### Navigation   - Routing, nav patterns, transitions, deep links, tab bars."
         events:       "### Events | Interactions  - User gestures, drag, keyboard, touch events."
         animations:   "### Animations   - Motion design, transitions, micro-interactions."
@@ -630,11 +738,15 @@ body:
       aliases: ["## Backend"]
       category: design
       description: >
-        API design. Protocol-agnostic: REST, GraphQL, WebSocket, gRPC, SOAP,
-        WCF, or any other. A system may mix protocols freely.
-        May describe an existing API to consume or a new API to build.
+        API design for this component's own exposed API surface -- what it
+        builds and owns. Protocol-agnostic: REST, GraphQL, WebSocket, gRPC,
+        SOAP, WCF, MCP, or any other, present or future. A system may mix
+        protocols freely.
         May range from endpoint names only to full request/response schemas.
         Organized by protocol OR by named API -- both valid, may be mixed.
+        Omit this section entirely if the component has no API of its own
+        (e.g. a pure frontend). For an API this component consumes but
+        doesn't own, use ## External Interfaces instead.
 
       organizing_patterns:
         by_protocol: |
@@ -642,16 +754,34 @@ body:
           ### REST
           ### GraphQL
           ### WebSocket
+          ### MCP
         by_named_api: |
           ## API
           ### Orders API
           REST-based. Base URL: /api/v1/orders
           ### Notifications API
           WebSocket-based.
+        multi_binding: |
+          ## API
+          ### Orders Service
+          Bindings: SOAP (basicHttpBinding), REST (webHttpBinding), TCP (netTcpBinding)
+          ### Endpoints
+          - **GetOrder(id): Order** -- all bindings
+          - **ExportOrders(): Stream** -- SOAP, TCP only
         note: >
           Named APIs may declare their protocol and use protocol-appropriate
-          subsections. Extension schemas may add new protocol subsections here
-          (e.g. ### gRPC, ### MQTT, ### AMQP).
+          subsections. Any protocol -- old, current, or not yet invented --
+          uses this same pattern as a custom H3, no schema change required
+          (e.g. ### gRPC, ### MQTT, ### AMQP, ### MCP).
+          For a monolith/enterprise service layer exposing one shared
+          contract over multiple transport bindings at once (classically
+          WCF, but any multi-binding backend qualifies), use multi_binding
+          instead of by_protocol -- declare Bindings once at the named-API
+          level and define operations a single time; annotate an individual
+          endpoint only when its binding availability differs from the
+          declared default. This avoids duplicating the same operations
+          under separate protocol subsections when the underlying contract
+          is genuinely one contract, not several.
 
       inheritable_subsections:
         note: >
@@ -663,11 +793,16 @@ body:
 
       per_api_subsections:
         endpoints:
-          heading: "### Endpoints | Paths | Operations | Channels | Methods"
+          heading: "### Endpoints | Paths | Operations | Channels | Methods | Tools"
           description: >
-            Callable surface. Naming follows protocol convention:
-            Endpoints/Paths (REST), Operations (GraphQL), Channels (WebSocket),
-            Methods (gRPC/SOAP/WCF). May use custom subsections for grouping.
+            The callable/interactive surface, whatever a given protocol
+            calls it -- this list is illustrative, not exhaustive.
+            Endpoints/Paths (REST), Operations (GraphQL), Channels
+            (WebSocket), Methods (gRPC/SOAP/WCF), Tools/Resources/Prompts
+            (MCP). A protocol not listed here uses its own native term
+            directly -- no schema change required, same principle as
+            organizing_patterns above. May use custom subsections for
+            grouping.
           examples:
             rest: |
               - **GET /api/customers**: Paginated customer list.
@@ -679,6 +814,9 @@ body:
             websocket: |
               - `/ws/notifications`: Server-push stream.
               - `/ws/chat/:roomId`: Bidirectional chat.
+            mcp: |
+              - **Tool** `search_customers(query: string)`: Returns matching customers.
+              - **Resource** `customer://{id}`: Single customer record.
 
         schema:
           heading: "### Schema | DTOs | Types | Models"
@@ -700,56 +838,87 @@ body:
           description: Error codes, shapes, and behavior.
 
     # --------------------------------------------------------------------------
-    database:
-      heading: "## Database"
-      aliases: ["## DB", "## Storage"]
+    functionality:
+      heading: "## Functionality"
+      aliases:
+        - "## Functional Design"
+        - "## Functional"
+        - "## Other Functionality"
       category: design
       description: >
-        Physical storage design. Distinct from Domain (logical model).
-        May describe an existing database to consume or a new one to create.
-        May range from engine and database names only to full schema definitions.
-        Organized by engine type or by named database -- both valid.
-      llm_note: >
-        Database = physical storage. Domain = logical model. Never collapse these.
-        Infer existing vs new from context. Flag ambiguity in Plan phase.
+        Catch-all design section for functional behavior not covered by UI,
+        API, or External Interfaces. Use for niche app types, cross-cutting
+        concerns, or any system behavior that doesn't fit cleanly elsewhere.
+        Flat by nature: prescribed and custom H3 subsections sit as peers,
+        each independent. No Contents/Entries pattern applies here -- content
+        under any subsection subdivides however the user wants (H4+, freely),
+        since there's no single "main content" stream to disambiguate from
+        a grouped one the way User Stories or Considerations have.
+        Follows the spectrum principle: entries may be conceptual descriptions
+        or concrete specifications with schemas, handlers, and behavior details.
+        Subsections below are the commonly-needed ones kept in the base
+        schema; anything else is a custom H3, added freely. If the same
+        custom subsection appears repeatedly across multiple specs, consider
+        formalizing it as an extension schema instead.
 
-      organizing_patterns:
-        by_engine: |
-          ## Database
-          ### PostgreSQL
-          ### Redis
-        by_named_db: |
-          ## Database
-          ### Orders Database
-          MS SQL Server 2019.
-          ### Cache
-          Redis 7. Session storage and rate limiting.
-
-      inheritable_subsections:
-        note: Global defaults at ## Database level, overridden per database block.
-        connections:
-          heading: "### Connections | Connection"
+      subsections:
+        events:
+          heading: "### Events | Event Handlers"
           description: >
-            Strategy, pooling, replicas, failover.
-            Placeholders only -- see Secrets Policy.
-        migrations:
-          heading: "### Migrations"
-          description: Tooling and strategy (Flyway, EF Core, Liquibase, Alembic, etc.)
+            Reactive event handlers, pub/sub subscribers, inbound webhooks,
+            and any logic triggered by external or internal events.
 
-      per_database_subsections:
-        schema:             "### Schema | Tables | Collections | Documents"
-        indexes:            "### Indexes"
-        seeds:
-          heading: "### Seeds | Seed Data"
-          note: Non-idempotent unless written with upsert/existence checks.
-        stored-procedures:  "### Stored Procedures | Stored Procs | Procedures"
-        views:              "### Views"
-        triggers:           "### Triggers"
-        permissions:        "### Permissions | Security"
+        triggers:
+          heading: "### Triggers"
+          description: >
+            Non-HTTP entry points: timer/cron, blob storage, queue arrival,
+            database change feed (CDC), cloud events. Common in serverless
+            and function app contexts. Distinct from Functions/Lambdas below:
+            Triggers describes what invokes a function, Functions/Lambdas
+            describes the function itself.
+
+        jobs:
+          heading: "### Jobs | Scheduled Tasks | Batch"
+          description: >
+            Recurring or one-off batch processes, background tasks, and
+            scheduled workloads. Distinct from Triggers in that jobs are
+            typically process-oriented rather than event-reactive.
+
+        messaging:
+          heading: "### Messaging"
+          description: >
+            Message producers, consumers, topic/queue contracts, message schemas,
+            retry policies, and dead-letter handling.
+
+        functions:
+          heading: "### Functions | Lambdas"
+          description: >
+            Serverless function handlers: name, purpose, runtime, handler
+            signature. May range from function names only to full signatures
+            and bindings. See the schema-functions extension for a fuller
+            trigger-type taxonomy (HTTP, Timer, Blob, Queue, Event, Database,
+            Custom) nested under this subsection.
+
+        workers:
+          heading: "### Workers | Background Workers"
+          description: >
+            Long-running background processes, daemon tasks, and
+            worker queue consumers that operate outside the request cycle.
+
+        database:
+          heading: "### Database"
+          description: >
+            Standalone database design owned by this component -- schema,
+            stored procedures, triggers, indexes, seeds, and similar
+            artifacts. Kept intentionally short and open-ended here; the
+            schema-database extension defines a fuller taxonomy for these
+            artifacts when a spec needs to go deeper.
+            For a database this component merely connects to but doesn't
+            own, use ## External Interfaces instead.
 
     # --------------------------------------------------------------------------
     testing:
-      heading: "## Testing | Tests"
+      heading: "## Testing"
       aliases: ["## Tests"]
       category: design
       description: >
@@ -769,7 +938,13 @@ body:
         e2e:            "### E2E | End-to-End            - Full user flow testing."
         performance:    "### Performance | Load | Benchmark"
         security:       "### Security | Penetration | OWASP"
-        accessibility:  "### Accessibility | a11y"
+        accessibility:
+          heading: "### Accessibility | a11y"
+          description: >
+            Accessibility test scenarios and tooling (axe, Lighthouse, etc.).
+            May also appear under ## UI/Accessibility or
+            Requirements/Non-Functional. LLM merges all three if defined
+            in more than one place.
 
       example: |
         ### Unit
@@ -870,7 +1045,13 @@ body:
         cicd:            "### CI/CD | Pipeline  - GitHub Actions, Azure DevOps, Jenkins, etc."
         infrastructure:  "### Infrastructure | IaC  - Terraform, Bicep, Pulumi, Helm, Docker Compose."
         targets:         "### Targets | Hosting  - AWS, Azure, GCP, Vercel, on-premises, etc."
-        scalability:     "### Scalability  - Auto-scaling, load balancing, CDN, caching layers."
+        scalability:
+          heading: "### Scalability"
+          description: >
+            Auto-scaling, load balancing, CDN, caching layers -- the
+            operational mechanism. May also appear under
+            Requirements/Non-Functional as the target being scaled to.
+            LLM merges both if defined in both places.
         rollback:        "### Rollback  - Strategy, triggers, recovery procedures."
         monitoring:      "### Monitoring | Observability  - Logging, metrics, alerting, tracing."
         secrets:
@@ -890,10 +1071,19 @@ body:
       aliases: ["## Known Issues", "## Bugs"]
       category: tracking
       description: >
-        Post-generation bugs reported by the user. Gaps in planning or
-        implementation found after code was generated. The user owns this
-        section -- the LLM never removes or modifies entries autonomously.
-        Encourage keeping this lean by removing fixed issues over time.
+        Exists because implementation sometimes gets something wrong when
+        the spec itself had a gap -- an ambiguity, an unstated assumption,
+        a missing case. When that happens there are two remediation paths:
+        fix the gap directly in the relevant section (preferred -- the spec
+        is the truth document, so the gap shouldn't persist once found), or
+        record it here when the fix isn't yet decided, or when leaving a
+        durable note has value beyond the immediate fix.
+        Not a bug tracker or a status-tracking system -- ongoing triage,
+        assignment, and remediation workflow belong in a separate
+        issue-tracking system if the team uses one. This section stays lean:
+        as issues are resolved they're either removed outright, or moved to
+        a Fixed subsection whose purpose is specifically preventing the same
+        mistake from being reintroduced later, not maintaining a history log.
 
       status_tags:
         "[open]":     "Active, unresolved. Default when tag omitted. Alias: [active]"
@@ -922,11 +1112,10 @@ body:
         wont-fix: "### Not a Bug | Won't Fix"
 
       llm_note: >
-        Resolve [open] issues in Run phase.
-        Skip [fixed], [deferred], [wont-fix] silently.
-        Clarification needed? Surface in Plan phase before touching code.
-        On resolution: update tag to [fixed], note in execution plan.
-        Suggest cleanup to user only -- never remove entries unilaterally.
+        No prescribed workflow for triaging, resolving, or cleaning up
+        issues -- the user or whoever is directing implementation decides
+        what to address and when. Status tags record state; they don't
+        trigger automatic action on their own.
 
     # ==========================================================================
     # REFERENCE SECTIONS
@@ -952,16 +1141,16 @@ body:
         External documentation, related projects, design files, and resources.
         The LLM may fetch external URLs when needed to fulfill spec requirements
         (e.g. reading an API spec, design system docs, or data schema).
+        Purely external resources -- for related internal specs, use
+        frontmatter `links` (depends-on / extends / related) instead, which
+        already carries an optional `reason` note. Keeps one canonical place
+        for spec-to-spec relationships rather than two.
       subsections: custom only
       example: |
         - [Tailwind + Vite](https://tailwindcss.com/docs/installation/using-vite)
 
         ### Design
         - Figma: [Component Library](https://figma.com/...)
-
-        ### Related Specs
-        - [API Spec](../api/api.spec.md)
-        - [Design System](../design/tokens.spec.md)
 
 
 # ==============================================================================
@@ -992,11 +1181,19 @@ extension_schema:
     Extension schemas are declared in the spec frontmatter via extends-schema.
 
   can_do:
-    - "Define new top-level sections (e.g. ## Functions, ## Commands)"
+    - "Define new top-level sections (e.g. ## Commands)"
     - "Add prescribed subsections to existing sections (e.g. ## API / ### gRPC)"
     - "Override section descriptions or llm_note fields"
     - "Define artifact type taxonomies relevant to the app type"
     - "Add new organizing patterns to existing sections"
+    - >
+      Promote a base-schema subsection to a full top-level section via
+      `precedence`, when a base section's brief/open-ended treatment of a
+      topic (e.g. Functionality's ### Functions | Lambdas, or
+      ### Database) needs a fuller taxonomy than a subsection can carry.
+      The promoted section shadows the base subsection while the extension
+      is loaded; the base subsection's content model still applies to any
+      spec that doesn't load the extension.
 
   example_structure: |
     # schema-functions.yaml
@@ -1007,10 +1204,15 @@ extension_schema:
     sections:
 
       functions:
-        heading: "## Functions"
-        aliases: ["## Lambdas", "## Cloud Functions"]
+        heading: "## Functions | Lambdas"
+        precedence: "functionality.functions"
+        # Shadows Functionality's ### Functions | Lambdas subsection while
+        # this extension is loaded -- promoted to a full top-level section
+        # (category: design, peer to UI/API/Functionality) with room for
+        # the fuller trigger taxonomy below.
+        category: design
         description: >
-          Defines serverless function handlers and their trigger configurations.
+          Serverless function handlers and their trigger configurations.
           May range from function names and trigger types only to full
           handler signatures, bindings, and environment configuration.
 
@@ -1048,6 +1250,64 @@ extension_schema:
             heading: "### Custom Trigger"
             description: Any other trigger type not listed above.
 
+  example_structure_2: |
+    # schema-database.yaml
+    # Extension schema for standalone database specs
+
+    extends: schema.yaml
+
+    sections:
+
+      database:
+        heading: "## Database"
+        aliases: ["## DB", "## Storage"]
+        precedence: "functionality.database"
+        # Shadows Functionality's ### Database subsection while this
+        # extension is loaded -- promoted to a full top-level section
+        # (category: design) for specs whose primary purpose is defining
+        # a standalone database.
+        category: design
+        description: >
+          Physical storage design owned by this component. Distinct from
+          ## Domain (logical model) and from ## External Interfaces
+          (a database this component merely connects to but doesn't own).
+          May range from engine and database names only to full schema
+          definitions. Organized by engine type or by named database.
+
+        organizing_patterns:
+          by_engine: |
+            ## Database
+            ### PostgreSQL
+            ### Redis
+          by_named_db: |
+            ## Database
+            ### Orders Database
+            MS SQL Server 2019.
+            ### Cache
+            Redis 7. Session storage and rate limiting.
+
+        inheritable_subsections:
+          note: Global defaults at ## Database level, overridden per database block.
+          connections:
+            heading: "### Connections | Connection"
+            description: >
+              Strategy, pooling, replicas, failover.
+              Placeholders only -- see Secrets Policy.
+          migrations:
+            heading: "### Migrations"
+            description: Tooling and strategy (Flyway, EF Core, Liquibase, Alembic, etc.)
+
+        per_database_subsections:
+          schema:             "### Schema | Tables | Collections | Documents"
+          indexes:            "### Indexes"
+          seeds:
+            heading: "### Seeds | Seed Data"
+            note: Non-idempotent unless written with upsert/existence checks.
+          stored-procedures:  "### Stored Procedures | Stored Procs | Procedures"
+          views:              "### Views"
+          triggers:           "### Triggers"
+          permissions:        "### Permissions | Security"
+
 
 # ==============================================================================
 # ARTIFACTS FOLDER
@@ -1055,7 +1315,11 @@ extension_schema:
 
 artifacts:
   folder: ".specmd/"
-  note: Committing this folder to version control is optional. Execution plans are disposable.
+  note: >
+    Committing this folder to version control is optional. Execution plans
+    are disposable. The SPEC.md skill can generate an execution plan here
+    during the Plan phase, but this is optional -- the user may use their
+    own planning skill or workflow instead. No codebase-summary artifact
+    is produced; agents are expected to read the codebase directly.
   contents:
-    execution_plan:   "{spec-id}-plan-{yyyymmdd}-{n}.md -- implementation checklist"
-
+    execution_plan: "{spec-id}-plan-{yyyymmdd}-{n}.md -- implementation checklist"
