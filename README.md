@@ -33,7 +33,7 @@ Spec-driven development was meant to fill a void in the AI-assisted software dev
 1. **Simple**: Provide a spec format that can be set up, understood, and operationalized in minutes
 2. **Agent-optimized**: Be agent-optimized, allowing for easy integration with agents and other AI tools
 3. **Flexible**: As simple as a single sentence, or as complex as a PRD
-4. **Lightweight**: Focused on small projects or teams
+4. **Lightweight**: Focused on small projects or teams, while minimizing token costs
 5. **Extensible**: Can be extended to accommodate evolving software types
 6. **Composable**: Can be decomposed into multiple SPEC.md files for larger projects or teams
 7. **Non-opinionated**: Does not prescribe a specific workflow, methodology, or toolchain
@@ -67,7 +67,7 @@ Inspect the codebase and generate a SPEC.md file.
 
 ### New Projects
 
-For a brand new project, we recommend using the **Snowflake Method** to create your SPEC.md file. This method allows you to start with a simple idea and iteratively expand it into a complete specification.
+For a brand new project, we recommend using the **Snowflake Method** to create your SPEC.md file. This method allows you to start with a simple idea and iteratively expand it into a complete specification. This approach is agile and iterative.
 
 > The **Snowflake Method** is a technique popularized by [Randy Ingermanson](https://www.advancedfictionwriting.com/articles/snowflake-method/), a software engineer turned fiction writer, for writing a novel by starting with a simple idea and gradually expanding it into a full story.
 
@@ -187,9 +187,10 @@ SPEC.md is role-agnostic, but it's important to clarify the roles of the agents 
 
 | Role | Description | Sections in SPEC.md |
 |------|-------------|-------------------------|
+| Product Owner | Defines the basis of the system. | Features |
 | Product Manager | Defines high-level requirements and priorities. | Requirements, User Stories |
-| Architect | Designs the system architecture and ensures alignment with the overall vision. | Data Model, Architecture, Considerations |
-| Developer | Implements features and fixes bugs according to the SPEC.md file. | Features, UI, API, Database, other custom sections |
+| Architect | Designs the system architecture and ensures alignment with the overall vision. | Architecture, Data Model, Considerations |
+| Developer | Implements features and fixes bugs according to the SPEC.md file. | UI, API, Database, Functionality, other custom sections |
 | QA Engineer | Tests the software to ensure it meets the specifications and quality standards. | Testing, Issues |
 | DevOps Engineer | Manages deployment, CI/CD pipelines, and infrastructure. | Deployment |
 
@@ -250,5 +251,20 @@ It's important to note that SPEC.md is not trying to compete with other spec-dri
 | **Methodology opinion** | None — bring your own | Agile/Scrum-shaped | SDD, nine-article constitution | EARS notation, wave execution | DDD mandatory (AI-DLC flow) |
 | **Best for** | Solo devs, small teams, fast iteration | Teams wanting agile ceremony w/ agents | Teams wanting GitHub-native SDD | Teams fully inside Kiro's IDE | Complex domains, multi-team, regulated environments |
 
+## FAQ
 
+### What workflow/methodology works best with SPEC.md?
 
+SPEC.md is methodology-agnostic and can work with various workflows. It is particularly well-suited for iterative development, where features, requirements, and user stories evolve over time. The Snowflake Method, described above, is a recommended approach for gradually expanding the spec from high-level concepts to detailed specifications.
+
+### What is a plan document?
+
+A plan document is a supplementary file that outlines the intended changes, implementation steps, and rationale before making modifications to the codebase. It serves as a blueprint for developers and agents to follow. In the SPEC.md workflow, plan documents are typically generated on demand and reviewed prior to implementation.
+
+### Is the plan step required for implementing the codebase?
+
+No, the plan step is not strictly required but highly recommended. This allows for a review of the proposed changes, ensuring that they align with the specifications and requirements defined in the SPEC.md file. It also provides an opportunity to introduce a validation step between the spec and the implementation.
+
+### Why SPEC.md?
+
+Use SPEC.md when you want a lightweight, flexible specification format. It is particularly well-suited for small teams and projects, allowing for rapid iteration and easy integration with agents and other AI tools. By focusing on intent rather than exhaustive detail, SPEC.md enables developers to maintain a clear vision of the software system while allowing agents to fill in the gaps.

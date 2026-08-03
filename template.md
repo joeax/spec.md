@@ -35,12 +35,12 @@ This is a vibespec. This description provides a brief overview of the software s
 ## Requirements
 [Lists universal requirements for the software system. Includes functional requirements. This can include non-functional requirements such as performance, security, and compliance. It can also include any specific constraints or limitations that should be considered during development.]
 
-> For all requirements, you can tag them with a priority level, such as [critical], [high], [medium], or [low]
+> For all requirements, you can tag them with a priority level, such as [critical], [high], [medium], or [low]. Default is medium.
 
 ### Functional
 - [critical] This is a critical functional requirement that must be implemented for the system to work.
 - [Functional Requirement 2]
-- [Functional Requirement 3]
+- [low] [Functional Requirement 3]
 
 ### Technical
 - [Technical Requirement 1]

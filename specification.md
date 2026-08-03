@@ -590,4 +590,13 @@ Custom as needed
 ```
 
 
+## FAQ
 
+### What is the difference between Features and Requirements?
+Features are high-level capabilities that describe what the system should do, while Requirements are authoritative, testable constraints that define how the system must behave. Features provide a quick overview, while Requirements provide detailed specifications.
+
+### Do I need Features, Requirements, and User Stories?
+It depends on your project and team. Features should be higher-level than Requirements, while User Stories focus on user interactions. In many cases, having all three ensures comprehensive coverage from high-level goals to actionable tasks.
+
+### Can I use custom sections?
+Yes, you can create custom sections as needed. However, using the prescribed sections ensures better compatibility with agents and other tools that may process the SPEC.md file.
