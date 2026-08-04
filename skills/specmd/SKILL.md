@@ -43,7 +43,7 @@ Steps:
 2. Follow the Required reading order above.
 3. Report the result clearly, highlighting contradictions, missing sections, or unclear requirements.
 
-Output: a concise understanding of the spec’s intent, structure, and notable gaps.
+Output: a concise understanding of the spec’s intent, structure, and notable gaps — structured as parallel top-level sections (e.g. Overview, Implemented, Pending, Notable Gaps, Bottom Line) rather than nested under one combined heading, using real subheadings for any subgroups within a section rather than bolded inline labels, and bullet points throughout, including the closing summary.
 
 ### 2. Define
 
@@ -54,12 +54,11 @@ Use the Define function when the user asks to create a new SPEC.md file or when 
 Steps:
 1. Determine whether the request is for a new project or an existing codebase.
 2. Read the core schema and spec schema file(s) so the new spec follows the expected structure — read any extension or custom schemas too, if applicable.
-3. If the project already contains code, inspect it to ground the spec in what exists.
-4. If the project is empty, start from only what the user has actually provided. A simple spec — frontmatter, title, and description only, no sections (see the simple spec template in Additional resources) — is a complete, valid starting point; add a section only once there is real information for it.
+3. If the project already contains code, inspect it and ground every section in what the code actually does. Detail that's verifiably true of the code (a Testing section noting no tests exist, an Issues entry for a real gap like missing input validation) is welcome here — it's grounded observation, not fabrication.
+4. If the project is empty, flesh out a reasonably complete spec from the user's description using best judgment and the smallest reasonable assumptions, stated explicitly (per Core principles) — don't stop at just a title and description by default. If the user explicitly asks for a simple, minimal, or bare-bones spec, use frontmatter, title, and description only instead (see the simple spec template in Additional resources).
 5. Create the spec at the project root unless the user explicitly requests another location.
-6. Keep the initial version focused on intent, scope, and major requirements rather than exhaustive implementation detail.
 
-Output: a new SPEC.md file that is concise, usable, and ready for planning or implementation.
+Output: a new SPEC.md file, usable and ready for planning or implementation.
 
 ### 3. Plan
 
@@ -106,7 +105,11 @@ When compacting is necessary:
 
 - Preserve important detail from the existing spec unless the user requests a change.
 - Avoid creating or editing files unless the requested action requires it.
-- Keep outputs structured, concise, and useful for downstream implementation or review.
+- Keep outputs structured and useful for downstream implementation or review, preferring bullet points over prose paragraphs — especially for summaries.
+- When creating a new document's frontmatter, populate only fields the resolved schema defines — never invent custom top-level fields.
+- In a new document's `metadata`, populate only objective, verifiable fields the schema defines (e.g. a creation date) — never `author`, and never `updated`, unless the user explicitly provides an author name or the agent has its own identity to attribute. Don't add a `changelog` entry on creation unless explicitly requested.
+- When a schema heading lists multiple pipe-separated aliases (e.g. `### Secrets | Configuration | Environment Variables`), the pipe list is a menu of alternative names, not literal heading text — write only the one alias that matches the actual content (e.g. write `### Environment Variables` when the section only documents an env var), never the full aliased string.
+- When tagging Requirements by priority, omit the tag entirely for `[normal]` items — normal is already the default when no tag is present. Only write `[critical]`, `[high]`, or `[low]` where the priority actually deviates from normal.
 
 ## Additional resources
 
