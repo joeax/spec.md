@@ -23,8 +23,7 @@ Spec-driven development was meant to fill a void in the AI-assisted software dev
 ### What SPEC.md is not
 
 - There is no tooling to run - simply install the agent skill
-- There is no prescribed workflow: SPEC.md has no opinion on how you plan, implement, or subdivide work into composible tasks
-- It does not care whether you use AI-DLC, BMad Method, or any other agent-driven development methodology
+- There is no prescribed workflow: SPEC.md has no opinion on how you plan, implement, or subdivide work into composable tasks
 - It does not lock you into any IDE, coding agent, or LLM model
 - It does not replace [AGENTS.md](https://agents.md), but rather complements it by describing "the what" and "the why" of your software project, while AGENTS.md describes "the how": the conventions, rules, and constraints of how you want your software project to look
 
@@ -128,11 +127,11 @@ Let's say your project is a backend microservice written in Python and using Fas
 	Generate a plan to implement the `/roles` API endpoint from SPEC.md.
 	```
 
-	This will create a plan document in `.specmd/plans/` that outlines the steps needed to implement the new API endpoint.
+	This will create a plan document in `.specmd/` that outlines the steps needed to implement the new API endpoint.
 
 	> SPEC.md has no opinion on how you document or store tasks. However, if you are not using a project management tool, we recommend committing task markdown files to your repository for traceability.
 
-3. Instruct your implementation agent to implement the plan. At this point, your `SPEC.md` file nor the `specmd` skill needs to be loaded into context. The plan document contains all the information needed for the implementation agent to complete the task.
+3. Instruct your implementation agent to implement the plan. At this point, your `SPEC.md` file nor the `specmd` skill needs to be loaded into context. The plan document contains all the information needed for the implementation agent to complete the work.
 
 4. After the implementation agent has completed the task, sync your SPEC.md file with your codebase and/or document any changes or deviations along with remediations in the Issues section of your SPEC.md file. 
 
@@ -204,7 +203,7 @@ For more information, see [Specification > Sections > Spectrum Principle](specif
 
 ### Spec drift
 
-You are ultimately responsible for keeping your SPEC.md file up-to-date and in sync with your codebase. If you find that your SPEC.md file is out of sync with your codebase, use the `specmd` skill to update a new SPEC.md. We recommend adding a spec syncing step in your agent workflow.
+You are ultimately responsible for keeping your SPEC.md file up-to-date and in sync with your codebase. If you find that your SPEC.md file is out of sync with your codebase, use the `specmd` skill to sync SPEC.md. We recommend adding a periodic spec syncing step in your agent workflow.
 
 ### Focus on intent
 
@@ -264,6 +263,23 @@ A plan document is a supplementary file that outlines the intended changes, impl
 ### Is the plan step required for implementing the codebase?
 
 No, the plan step is not strictly required but highly recommended. This allows for a review of the proposed changes, ensuring that they align with the specifications and requirements defined in the SPEC.md file. It also provides an opportunity to introduce a validation step between the spec and the implementation.
+
+### Do I have to use your plan skill at all?
+
+Absolutely not. You are free to use your own planning agent or methodology. The `specmd` skill ships with a plan function as a convenience for generating plan documents, but you can use any tool or process that fits your workflow.
+
+### I don't care too much for the SPEC.md spec format. Can I still use the `specmd` skill?
+
+Yes. The SPEC.md schema is the built-in default, but you are free to specify a different schema. In the frontmatter, you have the option of specifying a different schema like so:
+
+```yaml
+schema: custom
+```
+
+Schema options:
+- `srd`: A more traditional software requirements document [(SRD)](https://en.wikipedia.org/wiki/Software_requirements_specification) format.
+- `adhoc`: A free-form, unstructured format for ad hoc specifications.
+- `custom`: A custom schema that you define and provide to the agent.
 
 ### Why SPEC.md?
 
