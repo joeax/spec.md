@@ -126,7 +126,7 @@
 
 # ==============================================================================
 # FRONTMATTER
-# YAML block between triple-dash fences at the top of the .spec.md file.
+# YAML block between triple-dash fences at the top of the SPEC.md file.
 # All fields are optional.
 # ==============================================================================
 
@@ -215,8 +215,8 @@ frontmatter:
     # LLM warns if a linked spec has status "draft".
     # depends-on: ../auth/SPEC.md
     # depends-on:
-    #   - ../auth/auth.spec.md
-    #   - spec: https://github.com/org/repo/api.spec.md
+    #   - ../auth/SPEC.md
+    #   - spec: https://github.com/org/repo/api/SPEC.md
     #     reason: Shared API contract
 
     extends: '[string | LinkObject]?'

@@ -164,7 +164,7 @@ coverage:
     summary-of-changes: required when present
     tasks: required when actionable
 
-  database:
+  functionality:
     summary-of-changes: required when present
     tasks: required when actionable
 

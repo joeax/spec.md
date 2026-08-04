@@ -1,6 +1,6 @@
 # Title of Application
 
-This is a vibespec. This description provides a brief overview of the software system, its purpose, and its functionality. It should be placed immediately after the title and can be one sentence to a few paragraphs. It should be concise and require just enough information for the LLM to understand the system's intent.
+This is a spec file. This description provides a brief overview of the software system, its purpose, and its functionality. It should be placed immediately after the title and can be one sentence to a few paragraphs. It should be concise and require just enough information for the LLM to understand the system's intent.
 
 ## About
 - version: 1 *[Use your preferred versioning scheme: simple numbers, semantic versioning, dated versions]*
@@ -11,7 +11,7 @@ This is a vibespec. This description provides a brief overview of the software s
 - yyyy-mm-dd: Initial version.
 - yyyy-mm-dd: Updated to new Vibespec format.
 
-*[Note: Always use yyyy-mm-dd format for dates throughout the vibespec. Never use mm/dd/yyyy as this is ambiguous across locales.]*
+*[Note: Always use yyyy-mm-dd format for dates throughout the spec file. Never use mm/dd/yyyy as this is ambiguous across locales.]*
 
 ## Specifications | Specs
 - type: The type of application (web | mobile | desktop).

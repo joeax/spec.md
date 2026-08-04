@@ -1,0 +1,387 @@
+# SPEC.md Core
+# ----------------------------
+# Version: 2026-07-28
+#
+# Defines the two things every SPEC.md-compatible spec shares regardless of
+# which body schema it uses: the YAML frontmatter block, and universal agent
+# behavior. This file is always loaded. The spec's body format -- its actual
+# section catalog -- is a separate, substitutable file (see `schema` and
+# `extends-schema` below). The default body schema is schema-specmd.yaml,
+# a sibling file; a spec may point elsewhere, or opt out of body conformance
+# entirely via `schema: adhoc`.
+#
+# Filename: SPEC.md
+#
+# SCHEMA NOTATION
+#   type?        = optional
+#   [type]       = list of type
+#   "a" | "b"    = string enum
+#   This notation is used throughout this file and throughout body schema
+#   files such as schema-specmd.yaml.
+#
+# DEFERS TO AGENT INSTRUCTIONS
+#   SPEC.md defines what and why. How to work -- coding conventions,
+#   principles, house style -- is never restated here. Defer entirely to
+#   AGENTS.md, CLAUDE.md, or whatever core instruction file the assistant
+#   or framework already uses.
+#
+# INLINE HUMAN NOTES
+#   HTML comments <!-- ... --> are for humans only.
+#   The LLM MUST ignore all HTML comment blocks in all phases.
+#
+# SECRETS POLICY
+#   The LLM must NEVER generate, suggest, or infer actual secret values
+#   (passwords, tokens, API keys, connection strings, certificates) anywhere
+#   in the spec or in generated code. Placeholders only:
+#     DATABASE_URL=<see vault>
+#     API_KEY=<set in CI/CD environment>
+#   If actual secrets are detected in the spec, warn the user immediately.
+#
+# EXTENSION SCHEMAS
+#   A body schema (e.g. schema-specmd.yaml) covers universal sections
+#   applicable to any software system. App-type-specific sections and
+#   subsections are defined in extension schemas instead of bloating the
+#   base body schema. Extensions may define new top-level sections, add
+#   prescribed subsections to existing sections, override existing section
+#   descriptions and LLM notes, or promote a body-schema subsection to a
+#   full top-level section via `precedence` when a brief/open-ended base
+#   treatment needs a fuller taxonomy than a subsection can carry (the
+#   promoted section shadows the base subsection while the extension is
+#   loaded).
+#   Extensions target a spec's body schema, never this file -- frontmatter
+#   structure is universal and isn't a valid extension target.
+#   The spec frontmatter declares which extensions apply via `extends-schema`.
+#   Examples (all extend schema-specmd.yaml):
+#     schema-functions.yaml    Azure Functions / AWS Lambda
+#     schema-database.yaml     Standalone database specs (schema, stored
+#                              procs, indexes, seeds, triggers, views)
+#     schema-terraform.yaml    Terraform modules
+#     schema-library.yaml      Class / component libraries
+#     schema-cli.yaml          CLI tools
+#     schema-messaging.yaml    Message-driven / event-driven systems
+#     schema-notebook.yaml     Jupyter / data science notebooks
+
+---
+
+# ==============================================================================
+# FRONTMATTER
+# YAML block between triple-dash fences at the top of the .spec.md file.
+# All fields are optional.
+# ==============================================================================
+
+frontmatter:
+
+  # -- Identity ----------------------------------------------------------------
+
+  id: string?
+  # Unique slug used in spec graph links.
+  # Derived from H1 title if omitted: lowercase, spaces -> dashes.
+  # Examples: "frontend", "auth-service", "payment-api"
+
+  title: string?
+  # Canonical title if omitted from H1 heading.
+
+  version: string?
+  # Any format: "1", "2.1", "2025-07-18"
+
+  status: '"draft" | "review" | "stable" | "deprecated"'
+  # Default: "draft"
+  # LLM warns before implementing a spec that is not "stable".
+
+  type: '"web" | "mobile" | "desktop" | "api" | "library" | "cli" | "service" | "system" | string'
+  # Accepts any string for extensibility.
+
+  schema: '"specmd" | "adhoc" | string?'
+  # Default: "specmd" (implied when omitted -- resolves to schema-specmd.yaml,
+  #          the sibling body schema file; this core.yml file always applies
+  #          regardless of this field's value).
+  # "adhoc": freeform spec, no body schema conformance expected or enforced.
+  #          The agent reads content as-is -- no heading/structure validation,
+  #          no warnings about unrecognized sections. Frontmatter in this
+  #          file still applies.
+  # string:  Name or path to a custom/forked body schema file
+  #          (e.g. "my-schema.yaml"). Same loading mechanism as
+  #          extends-schema, but replaces the body schema entirely rather
+  #          than adding to it. Frontmatter is never forked -- core.yml
+  #          is universal by design.
+
+  extends-schema: '[string]?'
+  # Extension schema files that add or override sections in this spec's
+  # body schema. Targets the body (schema-specmd.yaml by default, or
+  # whatever `schema` above points to) -- never this file.
+  # Examples:
+  #   extends-schema: schema-functions.yaml
+  #   extends-schema:
+  #     - schema-functions.yaml
+  #     - schema-messaging.yaml
+
+  # -- Tech Stack --------------------------------------------------------------
+  # Machine-readable technical metadata.
+  # Replaces a ## Specifications / ## Specs body section.
+  # All fields accept inline comma-delimited string or YAML list.
+  # Treated as a starting point, not the final word -- ## Requirements /
+  # ### Technical is authoritative if the two contradict. Conflicts are
+  # surfaced in the Plan phase, never silently resolved.
+
+  tech:
+
+    languages: '[string] | string?'
+    # languages: TypeScript, Python
+    # languages: [TypeScript, Python]
+
+    frameworks: '[string] | string?'
+    # frameworks: React v19+, Tailwind CSS
+    # frameworks:
+    #   - React v19+
+    #   - Tailwind CSS
+
+    platform: string?
+    # Target runtime or platform.
+    # Examples: browser, iOS, Android, Node.js, AWS Lambda
+
+    dependencies: '[string | DependencyObject]?'
+    # Additional packages not listed under frameworks.
+    # Accepts strings, DependencyObjects, or a mixed list.
+    # dependencies: Axios, React Query v5+
+    # dependencies:
+    #   - Axios
+    #   - name: React Query
+    #     version: "^5.0.0"
+    #     reason: Server state management
+
+  # -- Spec Graph Links --------------------------------------------------------
+  # Relationships between specs. Builds a navigable spec graph.
+  # Each field accepts: string | [string] | [LinkObject] | mixed list.
+  # Paths may be relative, absolute, or URLs (for cross-repo references).
+
+  links:
+
+    depends-on: '[string | LinkObject]?'
+    # Specs that MUST be implemented before this one. Hard dependency.
+    # LLM warns if a linked spec has status "draft".
+    # depends-on: ../auth/SPEC.md
+    # depends-on:
+    #   - ../auth/auth.spec.md
+    #   - spec: https://github.com/org/repo/api.spec.md
+    #     reason: Shared API contract
+
+    extends: '[string | LinkObject]?'
+    # Specs this spec inherits from or specializes.
+    # extends: ../base/base-service.spec.md
+
+    related: '[string | LinkObject]?'
+    # Informational links. No dependency semantics.
+    # related:
+    #   - ../design-system/tokens.spec.md
+    #   - spec: ../ops/deployment.spec.md
+    #     reason: Shares deployment pipeline
+
+  # -- Instructions ------------------------------------------------------------
+  # Instructions for the agent to follow when editing the spec.
+  # This may include compacting rules and restrictions.
+
+  instructions: string?
+  # Example:
+  # When compacting, keep the last 10 items in Issues, remove the rest.
+
+  # -- Metadata ----------------------------------------------------------------
+
+  metadata: object?
+  # Arbitrary key-value mapping, following the SKILL.md convention.
+  # No fixed schema -- any keys are valid. Common keys: author, created,
+  # updated (yyyy-mm-dd), owner, tags.
+  # Write-restricted by default: the agent reads these values but does not
+  # add, edit, remove, or clean up keys unless explicitly instructed to in
+  # the current request. Standing permission (e.g. "always keep `updated`
+  # current") may be granted via the `instructions` field below.
+  # Example:
+  #   metadata:
+  #     author: Joe Agster
+  #     created: 2025-07-01
+  #     updated: 2025-07-18
+  #     owner: platform-team
+
+  # -- Changelog ---------------------------------------------------------------
+  # Human-readable version history. A convenience only -- git commit history
+  # on the spec file is the actual source of truth for change tracking.
+  # Kept as its own top-level field (not nested under metadata) since it's a
+  # list of dated entries, not a flat property -- frontmatter nesting is kept
+  # to one level throughout.
+  # Agents may only append a new item if explicitly requested to do so.
+
+  changelog: '[string]?'
+  # Format: "[yyyy-mm-dd] description"
+  # - "[2026-07-01] Initial draft"
+  # - "[2026-07-18] Added user stories"
+
+
+# ==============================================================================
+# SUPPORTING TYPES
+# ==============================================================================
+
+types:
+
+  DependencyObject:
+    name: string
+    version: string?   # "^5.0.0", "v19+", ">=2.0"
+    reason: string?
+
+  LinkObject:
+    spec: string       # Relative path, absolute path, or URL to .spec.md
+    reason: string?    # Human note on the nature of this relationship
+
+
+# ==============================================================================
+# EXTENSION SCHEMA FORMAT
+# ==============================================================================
+
+extension_schema:
+  description: >
+    Extension schemas follow the same YAML structure as the base schema.
+    They may define new sections, add prescribed subsections to existing
+    sections, or override descriptions and LLM notes.
+    Extension schemas are declared in the spec frontmatter via extends-schema.
+
+  can_do:
+    - "Define new top-level sections (e.g. ## Commands)"
+    - "Add prescribed subsections to existing sections (e.g. ## API / ### gRPC)"
+    - "Override section descriptions or llm_note fields"
+    - "Define artifact type taxonomies relevant to the app type"
+    - "Add new organizing patterns to existing sections"
+    - >
+      Promote a base-schema subsection to a full top-level section via
+      `precedence`, when a base section's brief/open-ended treatment of a
+      topic (e.g. Functionality's ### Functions | Lambdas, or
+      ### Database) needs a fuller taxonomy than a subsection can carry.
+      The promoted section shadows the base subsection while the extension
+      is loaded; the base subsection's content model still applies to any
+      spec that doesn't load the extension.
+
+  example_structure: |
+    # schema-functions.yaml
+    # Extension schema for Azure Functions / AWS Lambda
+
+    extends: schema.yaml
+
+    sections:
+
+      functions:
+        heading: "## Functions | Lambdas"
+        precedence: "functionality.functions"
+        # Shadows Functionality's ### Functions | Lambdas subsection while
+        # this extension is loaded -- promoted to a full top-level section
+        # (category: design, peer to UI/API/Functionality) with room for
+        # the fuller trigger taxonomy below.
+        category: design
+        description: >
+          Serverless function handlers and their trigger configurations.
+          May range from function names and trigger types only to full
+          handler signatures, bindings, and environment configuration.
+
+        subsections:
+          http:
+            heading: "### HTTP Trigger | HTTP"
+            description: HTTP-triggered functions. See also ## API for endpoint contracts.
+
+          timer:
+            heading: "### Timer Trigger | Timer | Scheduled"
+            description: >
+              Cron-scheduled functions.
+              Format: - `FunctionName`: schedule (cron expression), description.
+            example: |
+              - `DailyReportJob`: 0 2 * * * (daily at 02:00 UTC).
+                Generates and emails the daily summary report.
+
+          blob:
+            heading: "### Blob Trigger | Blob Storage"
+            description: Fires on blob storage create/update events.
+
+          queue:
+            heading: "### Queue Trigger | Queue"
+            description: Fires on message arrival (Service Bus, Storage Queue, SQS, etc.)
+
+          event:
+            heading: "### Event Trigger | Event Grid | Event Hub"
+            description: Fires on cloud or custom events.
+
+          database:
+            heading: "### Database Trigger | Change Feed | CDC"
+            description: Fires on database change events (Cosmos DB, DynamoDB Streams, Debezium).
+
+          custom:
+            heading: "### Custom Trigger"
+            description: Any other trigger type not listed above.
+
+  example_structure_2: |
+    # schema-database.yaml
+    # Extension schema for standalone database specs
+
+    extends: schema.yaml
+
+    sections:
+
+      database:
+        heading: "## Database"
+        aliases: ["## DB", "## Storage"]
+        precedence: "functionality.database"
+        # Shadows Functionality's ### Database subsection while this
+        # extension is loaded -- promoted to a full top-level section
+        # (category: design) for specs whose primary purpose is defining
+        # a standalone database.
+        category: design
+        description: >
+          Physical storage design owned by this component. Distinct from
+          ## Domain (logical model) and from ## External Interfaces
+          (a database this component merely connects to but doesn't own).
+          May range from engine and database names only to full schema
+          definitions. Organized by engine type or by named database.
+
+        organizing_patterns:
+          by_engine: |
+            ## Database
+            ### PostgreSQL
+            ### Redis
+          by_named_db: |
+            ## Database
+            ### Orders Database
+            MS SQL Server 2019.
+            ### Cache
+            Redis 7. Session storage and rate limiting.
+
+        inheritable_subsections:
+          note: Global defaults at ## Database level, overridden per database block.
+          connections:
+            heading: "### Connections | Connection"
+            description: >
+              Strategy, pooling, replicas, failover.
+              Placeholders only -- see Secrets Policy.
+          migrations:
+            heading: "### Migrations"
+            description: Tooling and strategy (Flyway, EF Core, Liquibase, Alembic, etc.)
+
+        per_database_subsections:
+          schema:             "### Schema | Tables | Collections | Documents"
+          indexes:            "### Indexes"
+          seeds:
+            heading: "### Seeds | Seed Data"
+            note: Non-idempotent unless written with upsert/existence checks.
+          stored-procedures:  "### Stored Procedures | Stored Procs | Procedures"
+          views:              "### Views"
+          triggers:           "### Triggers"
+          permissions:        "### Permissions | Security"
+
+
+# ==============================================================================
+# ARTIFACTS FOLDER
+# ==============================================================================
+
+artifacts:
+  folder: ".specmd/"
+  note: >
+    Committing this folder to version control is optional. Execution plans
+    are disposable. The SPEC.md skill can generate an execution plan here
+    during the Plan phase, but this is optional -- the user may use their
+    own planning skill or workflow instead. No codebase-summary artifact
+    is produced; agents are expected to read the codebase directly.
+  contents:
+    execution_plan: "{spec-id}-plan-{yyyymmdd}-{n}.md -- implementation checklist"
