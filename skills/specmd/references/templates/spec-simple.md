@@ -9,8 +9,7 @@ tech:
   frameworks: None
   platform: browser
 metadata:
-  author: Guy Smiley
-  updated: 2025-07-16
+  created: 2025-07-16
 ---
 
 # Simple Example App

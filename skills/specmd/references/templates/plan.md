@@ -2,7 +2,8 @@
 id: plan-20260728-001
 description: Implement the main UI.
 generated: 2026-07-28
-state: ready # states: ready, partial, completed, blocked
+state: partial
+spec: earth-orbit-visualizer
 ---
 
 # Execution Plan
@@ -15,20 +16,22 @@ state: ready # states: ready, partial, completed, blocked
 - Ensure the app is deployable as static files and generate missing SVG assets if needed.
 
 ## Tasks
-- [ ] Scaffold project structure: `index.html`, `css/`, `js/`, `images/`
-- [ ] Implement full-page canvas with three.js
-- [ ] Add responsive layout and starry sky background
+- [X] Scaffold project structure: `index.html`, `css/`, `js/`, `images/`
+- [X] Implement full-page canvas with three.js
+- [P] Add responsive layout and starry sky background
 - [ ] Create Header with title and date/time display
 - [ ] Add Orbit Box overlay with orbital properties
 - [ ] Implement interactive controls (rotation, time, date selection)
-- [ ] Render Sun and Earth SVGs (generate if missing)
+- [D] Render Sun and Earth SVGs (generate if missing)
 - [ ] Draw orbit path, perihelion/aphelion, solstice/equinox labels
 - [ ] Draw dashed lines for distances with labels
-- [ ] Ensure static deployability (no build tools required)
+- [C] Ensure static deployability (no build tools required)
 
 ## Implementation Notes
 - All logic will be in vanilla JavaScript; no frameworks except three.js.
-- SVGs for Sun and Earth will be created if not present in `images/`.
+- [P] Responsive layout: desktop and tablet breakpoints are done; phone-width layout still needs a pass.
+- [D] SVG generation deferred until final art direction for the Sun and Earth assets is confirmed.
+- [C] Need confirmation on the target static host (e.g. GitHub Pages vs. a CDN bucket) before finalizing the no-build-tools deployability check.
 - No backend or API integration required.
 - No test framework specified; recommend adding tests in future.
 

@@ -91,7 +91,7 @@ frontmatter:
   type: '"web" | "mobile" | "desktop" | "api" | "library" | "cli" | "service" | "system" | string'
   # Accepts any string for extensibility.
 
-  schema: '"specmd" | "adhoc" | string?'
+  schema: '"specmd" | "srd" | "adhoc" | string?'
   # Default: "specmd" (implied when omitted -- resolves to schema-specmd.yaml,
   #          the sibling body schema file; this core.yml file always applies
   #          regardless of this field's value).
@@ -99,6 +99,7 @@ frontmatter:
   #          The agent reads content as-is -- no heading/structure validation,
   #          no warnings about unrecognized sections. Frontmatter in this
   #          file still applies.
+  # "srd":   Resolves to the software requirements document (SRD)/ISO/IEC/IEEE 29148 standard.
   # string:  Name or path to a custom/forked body schema file
   #          (e.g. "my-schema.yaml"). Same loading mechanism as
   #          extends-schema, but replaces the body schema entirely rather
