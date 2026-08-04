@@ -41,7 +41,7 @@ Use the Read function when the user asks to read, inspect, summarize, or validat
 Steps:
 1. Identify the target SPEC.md file and confirm the scope.
 2. Follow the Required reading order above.
-3. Report the result clearly, highlighting contradictions, missing sections, or unclear requirements.
+3. Report the result clearly, highlighting contradictions, missing sections, unclear requirements, or references (frontmatter `links`, backtick file paths, asset links) that don't resolve to anything that actually exists.
 
 Output: a concise understanding of the spec’s intent, structure, and notable gaps — structured as parallel top-level sections (e.g. Overview, Implemented, Pending, Notable Gaps, Bottom Line) rather than nested under one combined heading, using real subheadings for any subgroups within a section rather than bolded inline labels, and bullet points throughout, including the closing summary.
 
@@ -68,10 +68,10 @@ Use the Plan function when the user needs a plan before changing code, especiall
 
 Steps:
 1. Identify the scope of the request. If the user asks for a plan for specific sections or a focused change, limit the plan to that scope rather than the entire spec.
-2. Follow the Required reading order above for the relevant SPEC.md file, plus any surrounding context needed to understand the requested area.
+2. Follow the Required reading order above for the relevant SPEC.md file. Also inspect the current codebase for the requested scope to determine what's already implemented, partially implemented, or missing — this determines each task's initial status marker ([X]/[P]/[ ]/[D]/[C]) rather than assuming everything is unstarted.
 3. Read the plan schema file so the generated plan document follows the expected structure.
 4. Break the requested work into clear, ordered implementation steps that can be executed in chunks or iteratively.
-5. Create a markdown plan document in the `.specmd/` folder that stands on its own: an implementation agent must be able to execute it without loading SPEC.md or this skill.
+5. Create a markdown plan document in the `.specmd/` folder that stands on its own: an implementation agent must be able to execute it without loading SPEC.md or this skill. If `.specmd/` already contains other plan documents, make sure the new one is clearly distinguishable from them (via filename, `description`, and `state`) so it's unambiguous which plan an implementer should run.
 6. Keep the plan focused on the requested change and call out assumptions, risks, or unresolved details.
 
 Output: a self-contained markdown plan document, scoped to the user’s request, that an implementation agent can execute without further reference to SPEC.md or this skill.
