@@ -227,3 +227,7 @@ skills/*-workspace/
 
 # Packaged skill distributable (output of skill-creator's package_skill.py)
 *.skill
+
+# Misc
+*.ignore
+old/

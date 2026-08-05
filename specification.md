@@ -85,7 +85,7 @@ The frontmatter contains metadata about the SPEC.md document. It is written in Y
 | links.related | No | string, list of strings, LinkObject, or mixed list | Informational spec relationships. |
 | instructions | No | string | Agent instructions for handling this spec (for example compacting rules). |
 | metadata | No | object | Human metadata container. |
-| metadata.author | No | string | Human author or owner. |
+| metadata.author | No | string | Human author or owner, or agent name/identity. |
 | metadata.created | No | string | Creation date in yyyy-mm-dd format. |
 | metadata.updated | No | string | Last update date in yyyy-mm-dd format. |
 | changelog | No | list of string | Version history entries. |
