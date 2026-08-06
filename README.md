@@ -243,32 +243,54 @@ It's important to note that SPEC.md is not trying to compete with other spec-dri
 | **What it is** | Spec format + agent skill | Multi-agent workflow framework | CLI + slash-command toolkit | Full IDE (fork of Code OSS) | Pluggable methodology framework |
 | **Tooling required** | None — install a skill | CLI installer, npm package | CLI (`uv`/`specify`) | Dedicated IDE | CLI + IDE extension |
 | **Artifacts per feature** | 1 spec file (+ 1 plan on demand) | PRD, architecture, sharded epics, story files | spec.md, plan.md, tasks.md, research.md, data-model.md, contracts/ | requirements.md, design.md, tasks.md | requirements.md, system-context.md, unit specs, bolt records |
-| **Scope** | Any component, app, or system | Whole project, agile-team shaped | Single feature within a repo | Single feature within a repo | Domain/enterprise, DDD-shaped |
+| **Scope** | Whole project or scoped to folder | Whole project, agile-team shaped | Single feature within a repo | Single feature within a repo | Domain/enterprise, DDD-shaped |
 | **Cross-spec linking** | Spec graph (native) | Doc handoff between agents | None | None | Bounded-context relationships |
 | **Agent model** | Any single agent | Named personas (PM, Architect, Dev, QA) | Any agent via integrations | Kiro's own agent | Phase-specific agents |
-| **Principles/conventions doc** | Defers to AGENTS.md | Baked into PM/Architect personas | `constitution.md` | Steering Files | `standards/` in memory-bank |
+| **Principles/conventions doc** | Architectural decisions in SPEC.md, other guidelines, conventions in AGENTS.md* | Baked into PM/Architect personas | `constitution.md` | Steering Files | `standards/` in memory-bank |
 | **Methodology opinion** | None — bring your own | Agile/Scrum-shaped | SDD, nine-article constitution | EARS notation, wave execution | DDD mandatory (AI-DLC flow) |
 | **Best for** | Solo devs, small teams, fast iteration | Teams wanting agile ceremony w/ agents | Teams wanting GitHub-native SDD | Teams fully inside Kiro's IDE | Complex domains, multi-team, regulated environments |
 
+\* *SPEC.md and AGENTS.md may overlap on some guidelines, such as testing guidelines, code coverage, etc. By default SPEC.md will defer to AGENTS.md for project-level conventions, rules, and constraints.*
+
 ## FAQ
 
-### What workflow/methodology works best with SPEC.md?
+### General
+
+#### Why SPEC.md?
+
+Use SPEC.md when you want a lightweight, flexible specification format. It is particularly well-suited for small teams and projects, allowing for rapid iteration and easy integration with agents and other AI tools. By focusing on intent rather than exhaustive detail, SPEC.md enables developers to maintain a clear vision of the software system while allowing agents to fill in the gaps.
+
+#### Does SPEC.md replace AGENTS.md?
+
+No. SPEC.md and AGENTS.md serve different purposes. SPEC.md focuses on the "what" and "why" of your software project, while AGENTS.md focuses on the "how" by defining the conventions, rules, and constraints for your agents. Both files can be used together to create a comprehensive spec-driven development workflow.
+
+#### What workflow/methodology works best with SPEC.md?
 
 SPEC.md is methodology-agnostic and can work with various workflows. It is particularly well-suited for iterative development, where features, requirements, and user stories evolve over time. The Snowflake Method, described above, is a recommended approach for gradually expanding the spec from high-level concepts to detailed specifications.
 
-### What is a plan document?
+### What coding assistants and agents does SPEC.md support?
 
-A plan document is a supplementary file that outlines the intended changes, implementation steps, and rationale before making modifications to the codebase. It serves as a blueprint for developers and agents to follow. In the SPEC.md workflow, plan documents are typically generated on demand and reviewed prior to implementation.
+SPEC.md is designed to be agent-agnostic and can work with any coding assistant or agent that supports agent skills, which is practically every coding assistant out there.
 
-### Is the plan step required for implementing the codebase?
+### We have a large project and our team prefers to store specs in separate files in the `/specs` folder. Can we still use SPEC.md?
 
-No, the plan step is not strictly required but highly recommended. This allows for a review of the proposed changes, ensuring that they align with the specifications and requirements defined in the SPEC.md file. It also provides an opportunity to introduce a validation step between the spec and the implementation.
+Yes. Set the `paths` frontmatter property to point to the folder where your specs are stored. The `specmd` skill will then treat all the files in that folder as part of the same spec graph.
 
-### Do I have to use your plan skill at all?
+Also, one pattern is to put your core architectural statements and high-level requirements in the root SPEC.md file, and then detailed specifications in their individual spec files.
 
-Absolutely not. You are free to use your own planning agent or methodology. The `specmd` skill ships with a plan function as a convenience for generating plan documents, but you can use any tool or process that fits your workflow.
+### SPEC.md spec format
 
-### I don't care too much for the SPEC.md spec format. Can I still use the `specmd` skill?
+#### Why do we need yet another spec format?
+
+The SPEC.md format is designed to be simple, flexible, agent-optimized, and token-efficient. It is easy to learn and understand for humans and agents alike. This format has been crafted from months of trial and error. It will, however, continue to evolve after community input and advancements in both coding assistants and LLM model capability.
+
+#### Some spec-driven workflows intentionally separate the spec details (what and why) with the implementation details (how). Does SPEC.md do this?
+
+We encourage you to focus on the what and why during the early stages of your spec definition stage and not the tech stack. However, as the spec becomes more detailed the tech stack and implementation details become part of the conversation.
+
+If you prefer to leave the tech stack and implementation details permanently out of your SPEC.md file, you are free to do so. You can then use the `specmd-plan` skill to generate a plan document that includes the tech stack and implementation details. 
+
+#### I don't care too much for the SPEC.md spec format. Can I still use the `specmd` skill?
 
 Yes. The SPEC.md schema is the built-in default, but you are free to specify a different schema. In the frontmatter, you have the option of specifying a different schema like so:
 
@@ -281,6 +303,17 @@ Schema options:
 - `adhoc`: A free-form, unstructured format for ad hoc specifications.
 - `custom`: A custom schema that you define and provide to the agent.
 
-### Why SPEC.md?
+### Planning
 
-Use SPEC.md when you want a lightweight, flexible specification format. It is particularly well-suited for small teams and projects, allowing for rapid iteration and easy integration with agents and other AI tools. By focusing on intent rather than exhaustive detail, SPEC.md enables developers to maintain a clear vision of the software system while allowing agents to fill in the gaps.
+#### What is a plan document?
+
+A plan document is a supplementary file that outlines the intended changes, implementation steps, and rationale before making modifications to the codebase. It serves as a blueprint for developers and agents to follow. In the SPEC.md workflow, plan documents are typically generated on demand and reviewed prior to implementation.
+
+#### Is the plan step required for implementing the codebase?
+
+No, the plan step is not strictly required but highly recommended. This allows for a review of the proposed changes, ensuring that they align with the specifications and requirements defined in the SPEC.md file. It also provides an opportunity to introduce a validation step between the spec and the implementation.
+
+#### Do I have to use your plan skill at all?
+
+Absolutely not. You are free to use your own planning agent or methodology. SPEC.md ships with an additional `specmd-plan` skill as a convenience for generating plan documents, but you can use any tool or process that fits your workflow.
+
