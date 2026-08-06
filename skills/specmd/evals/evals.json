@@ -17,22 +17,6 @@
     },
     {
       "id": 2,
-      "prompt": "Generate a plan to implement the task priority levels feature from SPEC.md.",
-      "expected_output": "A self-contained markdown plan document in .specmd/ scoped to the priority-levels feature, with an ordered task checklist an implementation agent could follow without re-reading SPEC.md.",
-      "files": [
-        "evals/fixtures/task-tracker/SPEC.md"
-      ],
-      "expectations": [
-        "A plan document is created inside a .specmd/ folder",
-        "The plan is scoped to the priority-levels feature, not a rewrite of the whole spec",
-        "The plan includes Summary of Changes, Tasks, and Implementation Notes sections",
-        "Tasks use checkbox status markers (e.g. '- [ ]') consistent with the plan schema",
-        "The plan is understandable and actionable without needing to re-read SPEC.md",
-        "The plan's frontmatter does not fabricate a metadata.author value copied from SPEC.md's author or otherwise invented"
-      ]
-    },
-    {
-      "id": 3,
       "prompt": "Sync this SPEC.md with the current codebase.",
       "expected_output": "SPEC.md updated to add the undocumented PATCH /tasks/{id}/complete endpoint (additive), a flagged contradiction between the spec's Task.status enum and the code's boolean completed field (not silently resolved), and the priority levels Future Consideration left untouched since it isn't implemented yet.",
       "files": [
@@ -52,7 +36,7 @@
       ]
     },
     {
-      "id": 4,
+      "id": 3,
       "prompt": "Generate a SPEC.md for this codebase.",
       "expected_output": "A new SPEC.md grounded in the actual code (Express task API with CRUD routes plus the complete endpoint), not invented structure, and not assuming features the code doesn't have (e.g. no status enum or priority levels). Grounded detail (e.g. Testing/Issues noting real gaps like missing validation or persistence) is welcome since it's verifiable from the code.",
       "files": [
@@ -73,7 +57,7 @@
       ]
     },
     {
-      "id": 5,
+      "id": 4,
       "prompt": "Define a new spec for a static website of car photos.",
       "expected_output": "A reasonably fleshed-out new SPEC.md inferred from the description using best judgment (e.g. Features, Requirements, Domain, UI) with assumptions stated explicitly -- not just frontmatter, title, and description, since the user did not ask for a simple/minimal spec.",
       "files": [],
@@ -84,7 +68,7 @@
       ]
     },
     {
-      "id": 6,
+      "id": 5,
       "prompt": "Set up a bare-bones, minimal spec for a personal blog -- just the basics for now.",
       "expected_output": "A minimal SPEC.md: frontmatter, title, and a short description only, per the explicit request for something bare-bones/minimal -- no invented sections.",
       "files": [],

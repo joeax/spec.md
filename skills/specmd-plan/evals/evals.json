@@ -1,0 +1,21 @@
+{
+  "skill_name": "specmd-plan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Generate a plan to implement the task priority levels feature from SPEC.md.",
+      "expected_output": "A self-contained markdown plan document in .specmd/ scoped to the priority-levels feature, with an ordered task checklist an implementation agent could follow without re-reading SPEC.md.",
+      "files": [
+        "evals/fixtures/task-tracker/SPEC.md"
+      ],
+      "expectations": [
+        "A plan document is created inside a .specmd/ folder",
+        "The plan is scoped to the priority-levels feature, not a rewrite of the whole spec",
+        "The plan includes Summary of Changes, Tasks, and Implementation Notes sections",
+        "Tasks use checkbox status markers (e.g. '- [ ]') consistent with the plan schema",
+        "The plan is understandable and actionable without needing to re-read SPEC.md",
+        "The plan's frontmatter does not fabricate a metadata.author value copied from SPEC.md's author or otherwise invented"
+      ]
+    }
+  ]
+}
