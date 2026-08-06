@@ -1,12 +1,12 @@
 ---
-name: specmd-plan
+name: specmd-plan-create
 description: Turn SPEC.md requirements into a self-contained implementation plan. Use when the user wants an implementation plan, task checklist, or execution plan derived from spec requirements — typically scoped to a specific feature, module, API surface, or set of requirements rather than the whole spec.
 metadata:
   author: joeax
   version: 2026-08-04
 ---
 
-# SPEC.md Plan Skill
+# SPEC.md Create Plan Skill
 
 Use this skill to turn a SPEC.md document's requirements into an actionable, self-contained implementation plan. This is an extension skill, not part of the core specmd workflow — it is not required to read, define, or sync a spec, and a project is free to use its own planning skill instead.
 

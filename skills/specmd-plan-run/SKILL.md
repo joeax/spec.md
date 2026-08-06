@@ -1,14 +1,14 @@
 ---
-name: specmd-run
+name: specmd-plan-run
 description: Execute and validate a plan document's task checklist — implementing its tasks in the codebase (Run) and auditing that implementation against the plan (Validate). Use when the user wants to run, implement, or execute a plan (e.g. from .specmd/), or wants to validate, verify, or audit a plan's status against the actual codebase. Operates on any document following the plan.yml schema, independent of whichever skill produced it.
 metadata:
   author: joeax
   version: 2026-08-06
 ---
 
-# SPEC.md Run Skill
+# SPEC.md Run Plan Skill
 
-Use this skill to implement a plan document's task checklist in the codebase, and to validate that implementation against the plan. This is an extension skill, self-contained and independent of specmd and specmd-plan — it operates on any document that follows the plan schema bundled with this skill, regardless of which skill produced it.
+Use this skill to implement a plan document's task checklist in the codebase, and to validate that implementation against the plan. This is an extension skill, self-contained and independent of specmd and specmd-plan-create — it operates on any document that follows the plan schema bundled with this skill, regardless of which skill produced it.
 
 ## Core principles
 
@@ -62,16 +62,16 @@ Steps:
 4. Flag mismatches explicitly in either direction: tasks marked `[X]` that aren't actually done, or tasks marked `[ ]`/`[P]` that are now actually complete. Also revisit `[D]`/`[C]` items whose blocking condition may have been resolved.
 5. Correct status markers to reflect ground truth and document findings in Implementation Notes. Never silently launder a mismatch by leaving it unflagged.
 
-Output: a validation report of mismatches found and corrected, plus an updated plan document whose statuses are truthful.
+Output: an updated plan document whose task statuses are truthful, with mismatches documented in Implementation Notes, plus a chat-level summary of what was found and corrected. Validate doesn't produce a separate report file.
 
 ## Working guidelines
 
-- Unlike specmd and specmd-plan, this skill is expected to edit the codebase — but only within the scope the plan describes.
+- Unlike `specmd` and `specmd-plan-create` skills, this skill is expected to edit the codebase — but only within the scope the plan describes.
 - Prefer small, incremental changes per task over large batch rewrites, consistent with the plan's own task granularity.
 - Keep the plan document's structure (frontmatter fields, section headings, status marker vocabulary) conformant to the plan schema at all times.
-- Don't invent new frontmatter or metadata fields the plan schema doesn't define.
+- Never edit the plan's frontmatter except the `state` field described in Run step 6 — all other progress and findings belong in task status markers and Implementation Notes.
 
 ## Additional resources
 
-- [Plan schema file](./references/schemas/plan.yml): full schema for the plan document this skill executes and validates against. Bundled locally so this skill has no install-time dependency on specmd-plan.
+- [Plan schema file](./references/schemas/plan.yml): full schema for the plan document this skill executes and validates against. Bundled locally so this skill has no install-time dependency on specmd-plan-create.
 - [Plan example](./references/examples/plan.md): example plan document showing status markers in a realistic state.
