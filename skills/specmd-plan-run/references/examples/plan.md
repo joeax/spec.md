@@ -16,22 +16,27 @@ spec: earth-orbit-visualizer
 - Ensure the app is deployable as static files and generate missing SVG assets if needed.
 
 ## Tasks
-- [X] Scaffold project structure: `index.html`, `css/`, `js/`, `images/`
-- [X] Implement full-page canvas with three.js
-- [P] Add responsive layout and starry sky background
-- [ ] Create Header with title and date/time display
-- [ ] Add Orbit Box overlay with orbital properties
-- [ ] Implement interactive controls (rotation, time, date selection)
-- [D] Render Sun and Earth SVGs (generate if missing)
-- [ ] Draw orbit path, perihelion/aphelion, solstice/equinox labels
-- [ ] Draw dashed lines for distances with labels
-- [C] Ensure static deployability (no build tools required)
+- [X] **T01**: Scaffold project structure: `index.html`, `css/`, `js/`, `images/`
+- [X] **T02**: Implement full-page canvas with three.js
+- [P] **T03**: Add responsive layout and starry sky background
+- [ ] **T04**: Create Header with title and date/time display
+- [ ] **T05**: Add Orbit Box overlay with orbital properties
+- [ ] **T06**: Implement interactive controls (rotation, time, date selection)
+- [D] **T07**: Render Sun and Earth SVGs (generate if missing)
+- [ ] **T08**: Draw orbit path, perihelion/aphelion, solstice/equinox labels
+- [ ] **T09**: Draw dashed lines for distances with labels
+- [C] **T10**: Ensure static deployability (no build tools required)
 
 ## Implementation Notes
 - All logic will be in vanilla JavaScript; no frameworks except three.js.
-- [P] Responsive layout: desktop and tablet breakpoints are done; phone-width layout still needs a pass.
-- [D] SVG generation deferred until final art direction for the Sun and Earth assets is confirmed.
-- [C] Need confirmation on the target static host (e.g. GitHub Pages vs. a CDN bucket) before finalizing the no-build-tools deployability check.
+- Responsive layout: desktop and tablet breakpoints are done; phone-width layout still needs a pass.
+- SVG generation deferred until final art direction for the Sun and Earth assets is confirmed.
+- Need confirmation on the target static host (e.g. GitHub Pages vs. a CDN bucket) before finalizing the no-build-tools deployability check.
 - No backend or API integration required.
 - No test framework specified; recommend adding tests in future.
 
+## Implementation Log
+- **T03**: Attempted the phone-width breakpoint pass this run; still pending, no change from initial state.
+- **T07**: Still deferred — art direction for the Sun/Earth assets hasn't been confirmed yet.
+- **T10**: Still needs clarification — no decision yet on target static host (GitHub Pages vs. CDN bucket).
+- Run stopped here: T04, T05, T06, T08, T09 remain untouched for a future pass; plan stays `partial`.

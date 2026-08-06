@@ -34,7 +34,7 @@ Steps:
 1. Identify the scope of the request. If the user asks for a plan for specific sections or a focused change, limit the plan to that scope rather than the entire spec.
 2. Follow the Required reading order above for the relevant SPEC.md file. Also inspect the current codebase for the requested scope to determine what's already implemented, partially implemented, or missing — this determines each task's initial status marker ([X]/[P]/[ ]/[D]/[C]) rather than assuming everything is unstarted.
 3. Read the plan schema file so the generated plan document follows the expected structure.
-4. Break the requested work into clear, ordered implementation steps that can be executed in chunks or iteratively.
+4. Break the requested work into clear, ordered implementation steps that can be executed in chunks or iteratively, each assigned a stable, sequential ID (`**T01**`, `**T02**`, ...) that later execution can reference.
 5. Create a markdown plan document in the `.specmd/` folder that stands on its own: an implementation agent must be able to execute it without loading SPEC.md or this skill. If `.specmd/` already contains other plan documents, make sure the new one is clearly distinguishable from them (via filename, `description`, and `state`) so it's unambiguous which plan an implementer should run.
 6. Keep the plan focused on the requested change and call out assumptions, risks, or unresolved details.
 
