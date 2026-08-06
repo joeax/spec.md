@@ -49,8 +49,11 @@
       "expectations": [
         "The API section lists all 6 routes present in the code, including PATCH /tasks/{id}/complete",
         "The API section does not list routes that don't exist in the code",
+        "Each API endpoint entry includes a brief description of what it does, not just the bare method and path",
         "No Task.status enum or priority-level fields are invented, since the code has neither",
         "Domain/entity fields described (if present) match the actual Task model: id, title, completed, createdAt",
+        "If a Domain section is included, the Task entity's field list appears under Entities as an #### Task heading, not under Types",
+        "Frontmatter tech fields with a single item (e.g. a single language or dependency) use inline form (e.g. languages: JavaScript), not a one-item YAML list",
         "metadata does not include a fabricated author value",
         "metadata does not include an updated value on initial creation",
         "If a Deployment-style section for the PORT variable is included, its heading uses a single alias (e.g. '### Environment Variables'), not the full pipe-separated alias list from the schema"
@@ -64,6 +67,11 @@
       "expectations": [
         "Output includes at least Features and/or Requirements beyond just frontmatter, title, and description",
         "Assumptions made beyond the one-sentence prompt are stated explicitly (e.g. in a Considerations/Assumptions subsection), not silently invented",
+        "No ## API section is invented, since a static photo website has no backend of its own to expose",
+        "If a Domain section is included, entity field lists (e.g. Photo, Album) appear under Entities as #### headings, not under Types",
+        "If UI Components are listed, each includes a brief description of its purpose, not just a bare name",
+        "If a Folder Structure section is included, it uses a fenced tree view rather than a flat bullet list of paths",
+        "Frontmatter tech fields with a single item use inline form, not a one-item YAML list",
         "metadata includes only a created date -- no author, no updated, no changelog entry"
       ]
     },
@@ -75,6 +83,29 @@
       "expectations": [
         "Output contains only frontmatter, a title, and a short description -- no additional H2 sections",
         "metadata includes only a created date -- no author, no updated, no changelog entry"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Turn this into a more detailed spec with frontmatter. Let's use the latest version of React. Include features, user stories, architecture, and data design.",
+      "expected_output": "A detailed SPEC.md for a frontend-only React/TypeScript contact management app that persists data through a mocked API layer and browser localStorage, with no real backend yet. Correctly separates the mocked backend contract (External Interfaces) from the domain model (Domain) and from this component's own API surface (none -- omitted).",
+      "files": [
+        "evals/fixtures/simple-crm-frontend/SPEC.md"
+      ],
+      "expectations": [
+        "No ## API section is created, since this component has no backend of its own to expose",
+        "The mocked CRUD service contract (method names with descriptions) lives entirely under External Interfaces, not split into ## API",
+        "External Interfaces also describes the localStorage persistence shape and/or key, not just a one-line mention that local storage is used",
+        "If a Domain section is included, the primary entity (e.g. Contact) is defined under Entities as an #### heading with its full field list, not under Types",
+        "Types (if present) contains only shared constrained value types (enums, formats, small value structs), never the primary entity's field list",
+        "If Personas are defined under User Stories, every story's actor is one of the defined personas",
+        "If UI Components are listed, each includes a brief description of its purpose, not just a bare name",
+        "Sections follow the spec schema's recommended order unless the request implies otherwise",
+        "The explicit list of sections named in the prompt (features, user stories, architecture, data design) is treated as emphasis, not exhaustive -- a UI section is still included for a React frontend",
+        "Frontmatter tech fields with a single item (e.g. a single language or framework) use inline form, not a one-item YAML list",
+        "Frontmatter indentation uses spaces, not tabs",
+        "If a Testing section is included, content for each testing domain uses the corresponding ### heading (e.g. ### Unit) rather than an inline bullet label",
+        "If a Folder Structure section is included, it uses a fenced tree view rather than a flat bullet list of paths"
       ]
     }
   ]

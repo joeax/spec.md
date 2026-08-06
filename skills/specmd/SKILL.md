@@ -55,8 +55,9 @@ Steps:
 1. Determine whether the request is for a new project or an existing codebase.
 2. Read the core schema and spec schema file(s) so the new spec follows the expected structure — read any extension or custom schemas too, if applicable.
 3. If the project already contains code, inspect it and ground every section in what the code actually does. Detail that's verifiably true of the code (a Testing section noting no tests exist, an Issues entry for a real gap like missing input validation) is welcome here — it's grounded observation, not fabrication.
-4. If the project is empty, flesh out a reasonably complete spec from the user's description using best judgment and the smallest reasonable assumptions, stated explicitly (per Core principles) — don't stop at just a title and description by default. If the user explicitly asks for a simple, minimal, or bare-bones spec, use frontmatter, title, and description only instead (see the simple spec template in Additional resources).
-5. Create the spec at the project root unless the user explicitly requests another location.
+4. If the project is empty, flesh out a reasonably complete spec from the user's description using best judgment and the smallest reasonable assumptions, stated explicitly (per Core principles) — don't stop at just a title and description by default. If the user explicitly asks for a simple, minimal, or bare-bones spec, use frontmatter, title, and description only instead (see the simple spec template in Additional resources). Otherwise, for a fuller spec, consult the detailed spec template in Additional resources — it shows canonical section order and structure (Domain's Entities/Relationships/Types split, the External Interfaces vs. API boundary, and more) in one coherent example, not just described in isolation per section.
+5. Order sections per the spec schema's recommended order unless the user's own description or an existing codebase/spec structure implies a different order. When the user names specific sections to include (e.g. "include features, user stories, and architecture"), treat that as emphasis on what must be present, not an exhaustive list — still include other sections clearly warranted by the described product (e.g. a frontend application warrants `## UI` even if not explicitly named).
+6. Create the spec at the project root unless the user explicitly requests another location.
 
 Output: a new SPEC.md file, usable and ready for planning or implementation.
 
@@ -92,11 +93,13 @@ When compacting is necessary:
 - Keep outputs structured and useful for downstream implementation or review, preferring bullet points over prose paragraphs — especially for summaries.
 - When creating a new document's frontmatter, populate only fields the resolved schema defines — never invent custom top-level fields.
 - In a new document's `metadata`, populate only objective, verifiable fields the schema defines (e.g. a creation date) — never `author`, and never `updated`, unless the user explicitly provides an author name or the agent has its own identity to attribute. Don't add a `changelog` entry on creation unless explicitly requested.
-- When a schema heading lists multiple pipe-separated aliases (e.g. `### Secrets | Configuration | Environment Variables`), the pipe list is a menu of alternative names, not literal heading text — write only the one alias that matches the actual content (e.g. write `### Environment Variables` when the section only documents an env var), never the full aliased string.
-- When tagging Requirements by priority, omit the tag entirely for `[normal]` items — normal is already the default when no tag is present. Only write `[critical]`, `[high]`, or `[low]` where the priority actually deviates from normal.
+- When a schema heading lists multiple pipe-separated aliases (e.g. `### Configuration | Environment Variables`), the pipe list is a menu of alternative names, not literal heading text — write only the one alias that matches the actual content (e.g. write `### Environment Variables` when the section only documents an env var), never the full aliased string.
+- When a schema section defines a canonical `heading` plus a separate list of alternate names (e.g. `## Domain` aliased to `## Data Design`, `## Domain Model`, etc.), default to the canonical heading when creating a new document. Use an alias only when the user's own wording, an existing codebase, or the spec being synced already establishes that alias as the standing name.
+- For any `[tagname]` bracket tag whose vocabulary defines a default-when-omitted value (e.g. Requirements priority defaults to `[normal]`, Issues status defaults to `[open]`/`[active]`), omit the tag entirely for items at that default — don't write it out. Only write a tag where the value actually deviates from the section's default.
 
 ## Additional resources
 
 - [Core schema file](./references/schemas/core.yml): core schema for the SPEC.md framework.
 - [Spec schema file](./references/schemas/spec.yml): full schema for the SPEC.md file.
 - [Simple spec template](./references/templates/spec-simple.md): example of a simple SPEC.md file — frontmatter, title, and description only.
+- [Detailed spec template](./references/templates/spec-detailed.md): example of a fully fleshed-out SPEC.md — one coherent document showing canonical section order and structure, not a form to fill in.

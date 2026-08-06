@@ -30,6 +30,20 @@
 #     (1) Inline comma-delimited:  languages: TypeScript, Python
 #     (2) Markdown bullet list:    - TypeScript\n- Python
 #     (3) Subsections:             ### TypeScript\n  description...
+#   Default to (1) for a single item or a short list (up to ~50 chars)
+#   that stays easy to read comma-joined -- e.g. languages: TypeScript,
+#   never a one-item bullet list. Move to (2) or (3) once the list grows
+#   past that, needs one entry per line for readability, or contains
+#   commas/other characters that make a comma-joined line ambiguous.
+#
+# NAMED ITEM DETAIL
+#   Whenever a section lists named items -- UI components, pages/screens,
+#   API endpoints, functions, jobs, event handlers, and similar -- each
+#   item includes at least a one-line description of its purpose or
+#   behavior, not just its name. A bare name-only list is the weak end of
+#   the spectrum principle and should be avoided by default; depth beyond
+#   one line (props, payloads, code) still follows that principle. Applies
+#   wherever this pattern occurs, not just ## UI, ## API, and ## Functionality.
 #
 # TAG SYNTAX
 #   `[tagname]` bracket notation is a universal convention, usable in any
@@ -116,6 +130,27 @@ body:
   #   `src/components/CustomerTable.tsx`
   # The LLM treats these as concrete assertions resolved against Folder Structure.
   # Square brackets denote placeholder patterns: `[ComponentName]/index.ts`
+
+  # -- Type References -----------------------------------------------------
+  # Field, parameter, and type-definition types use backtick formatting
+  # throughout the spec -- Domain > Entities, Domain > Types, API schemas,
+  # and anywhere else a type token appears:
+  #   - id: `uuid`
+  #   - status: `CustomerStatus`
+  #   - orders: `[Order]`
+
+  # -- Code Artifact References -------------------------------------------------
+  # Beyond paths and types above, any other literal code artifact uses
+  # backtick formatting throughout the spec: HTTP endpoints, function/method
+  # signatures, CLI commands, environment variable names, and a UI element
+  # named physically (an actual file/component name) rather than logically:
+  #   `GET /api/customers`, `search_customers(query: string)`,
+  #   `npm run build`, `DATABASE_URL`, `ContactList.tsx`
+  # A logical/conceptual name -- a persona, or a UI component described by
+  # role rather than by file (per the spectrum principle in ## UI) -- isn't
+  # a code artifact and doesn't take backticks; bold or plain text is fine
+  # there instead. The test: does this string appear verbatim in code, a
+  # URL, or a command, or is it describing something at a conceptual level?
 
   # -- Sections ----------------------------------------------------------------
   # All sections are optional H2 headings. Order is not enforced.
@@ -296,7 +331,11 @@ body:
             Short definitions of the actor types referenced in stories --
             name, role, one line of context. Optional. Lets stories reference
             an actor (e.g. "As an [Admin]...") without re-explaining who that
-            is each time.
+            is each time. If Personas is defined, every story's actor is one
+            of the defined personas (ideally via the bracket reference) --
+            never leave a defined persona unused, and never introduce a
+            story actor that isn't a listed persona. Skip this subsection
+            entirely rather than defining personas the stories don't use.
           example: |
             - **Admin**: manages catalog and orders.
             - **Guest**: browses without an account.
@@ -384,31 +423,36 @@ body:
         Mermaid ER and UML class diagrams supported inline.
       llm_note: >
         Domain is the logical model, independent of physical storage.
-        Connection-level storage detail belongs to ## External Interfaces;
-        full storage design (schema, stored procedures, etc.) belongs to
-        the database owner's own spec or the schema-database extension.
-        Never collapse Domain into any of these -- it stands on its own
-        even when a spec has no database in scope at all.
+        Connection-level storage detail belongs to ## External Interfaces,
+        including mocked or local-only stand-ins such as a mock API service
+        layer or localStorage; full storage design (schema, stored
+        procedures, etc.) belongs to the database owner's own spec or the
+        schema-database extension. Never collapse Domain into any of these
+        -- it stands on its own even when a spec has no database in scope
+        at all.
 
       subsections:
         entities:
           heading: "### Entities"
           description: >
-            Core domain objects. Each entity as an H4 subsection with a field list.
-            Field format: - fieldName: type (constraint note)
+            Core domain objects. Each entity as an H4 subsection with a field list,
+            always nested under this ### Entities heading -- never placed as a
+            direct ### heading under ## Domain (e.g. a "### Customer" H3 sibling
+            of ### Entities is wrong; it belongs as #### Customer beneath it).
+            Field format: - fieldName: `type` (constraint note)
             Depth is flexible per the spectrum principle -- from named entities
             only, to fully typed fields with constraints and relationships.
-          field_types: "string, int, float, bool, datetime, uuid, [Type], Type?"
+          field_types: "`string`, `int`, `float`, `bool`, `datetime`, `uuid`, `[Type]`, `Type?`"
           constraints: >
             (required), (max 254 chars), (ref: Order.id),
             (range: 0-100), (regex: ^[A-Z]{2}[0-9]{4}$)
           example: |
             #### Customer
-            - id: uuid
-            - name: string (required)
-            - email: Email              <- references a Type
-            - status: CustomerStatus    <- references a Type (enum)
-            - orders: [Order]           <- relationship implied by list type
+            - id: `uuid`
+            - name: `string` (required)
+            - email: `Email`              <- references a Type
+            - status: `CustomerStatus`    <- references a Type (enum)
+            - orders: `[Order]`           <- relationship implied by list type
 
         relationships:
           heading: "### Relationships"
@@ -427,21 +471,28 @@ body:
             Fully open-ended -- enums, ranges, regex patterns, structs, and more.
             The LLM maps each definition to the appropriate language construct
             (TypeScript union, Zod schema, Python Literal, enum, dataclass, etc.)
+            Never a substitute for Entities: if a definition has its own
+            identity (an id) or lifecycle (createdAt/updatedAt) -- i.e. it's
+            a primary domain object like Contact or Customer -- its full
+            field list belongs under Entities as its own #### heading, not
+            here. The struct form below is only for small embedded value
+            shapes referenced from a field's type (e.g. a field typed
+            `location: Point`), never the primary object being modeled.
           forms:
-            enum:             '"active" | "inactive" | "pending"'
-            range:            "Int(0-100), Float(0.0-1.0)"
-            format:           "string (must contain @, max 254 chars)"
-            regex:            "string (regex: ^[A-Z]{2}[0-9]{4}$)"
-            struct:           "Point:\n  x: Float\n  y: Float"
-            domain_ref:       "[Domain: EntityName]"
+            enum:             '`"active" | "inactive" | "pending"`'
+            range:            "`Int(0-100)`, `Float(0.0-1.0)`"
+            format:           "`string` (must contain @, max 254 chars)"
+            regex:            "`string` (regex: ^[A-Z]{2}[0-9]{4}$)"
+            struct:           "Point:\n  x: `Float`\n  y: `Float`"
+            domain_ref:       "`[Domain: EntityName]`"
           example: |
-            - CustomerStatus: "active" | "inactive" | "pending"
-            - Score: Int(0-100)
-            - Email: string (must contain '@', max 254 chars)
-            - Percentage: Float(0.0-1.0)
+            - CustomerStatus: `"active" | "inactive" | "pending"`
+            - Score: `Int(0-100)`
+            - Email: `string` (must contain '@', max 254 chars)
+            - Percentage: `Float(0.0-1.0)`
             - Point:
-                x: Float
-                y: Float
+                x: `Float`
+                y: `Float`
 
     # --------------------------------------------------------------------------
     external-interfaces:
@@ -460,8 +511,12 @@ body:
         -- schema, stored procedures, and other storage-design detail
         belong to ## Functionality/Database, the database owner's own spec,
         or the schema-database extension for standalone database specs),
-        and communications interfaces (email/SMS gateways, inbound webhooks
-        from outside).
+        communications interfaces (email/SMS gateways, inbound webhooks
+        from outside), and mocked or local-only stand-ins for a
+        not-yet-built backend (a mock API service layer, browser storage
+        such as localStorage/IndexedDB used as a persistence stand-in) --
+        these are still external to the domain model even though they're
+        synthetic, so they belong here, not in ## Domain.
         Placed before ## UI: these dependencies may indirectly drive UI
         design (a third-party payment widget, a hardware constraint) even
         though the relationship isn't always direct.
@@ -482,6 +537,11 @@ body:
 
         ### Receipt Printer
         ESC/POS thermal printer via USB. See vendor SDK docs for command set.
+
+        ### Mock Contact Service (local)
+        In-memory/localStorage-backed service standing in for a future
+        backend. Contract: `getContacts()`, `createContact(input)`, etc.
+        Storage key: `crm-contacts-v1`.
 
     # --------------------------------------------------------------------------
     ui:
@@ -525,13 +585,23 @@ body:
           description: >
             UI components, logical or physical (per spectrum principle --
             both are valid, including a fully framework-concrete component
-            tree). May be grouped under custom H4 headings if the list
-            grows large enough to need it -- no wrapper subsection required.
-            An optional ### Implementation heading may nest under an
-            individual component for framework-specific code details kept
-            separate from a more conceptual description, but this is
-            discouraged -- inline detail within the component entry is
-            preferred in the common case.
+            tree). Each component includes a brief description of its
+            purpose alongside its name -- never a bare name-only list (see
+            Named Item Detail). A logical component (named by role, not by
+            file) doesn't take backticks -- plain text or bold is fine. A
+            physical component (an actual file/component name) is a code
+            artifact and uses backtick formatting per the Code Artifact
+            References convention above (e.g. `ContactList.tsx`). May be
+            grouped under custom H4 headings if the list grows large enough
+            to need it -- no wrapper subsection required. An optional
+            ### Implementation heading may nest under an individual
+            component for framework-specific code details kept separate
+            from a more conceptual description, but this is discouraged --
+            inline detail within the component entry is preferred in the
+            common case.
+          example: |
+            - ContactList: Scrollable list of contact rows with search and quick actions.  <- logical
+            - `ContactList.tsx`: Scrollable list of contact rows with search and quick actions.  <- physical
 
         widgets:      "### Widgets      - Self-contained UI units. Flutter, Android, desktop."
         viewgroups:   "### ViewGroups   - Container/layout groupings. Android and hierarchical UI."
@@ -567,7 +637,12 @@ body:
         Organized by protocol OR by named API -- both valid, may be mixed.
         Omit this section entirely if the component has no API of its own
         (e.g. a pure frontend). For an API this component consumes but
-        doesn't own, use ## External Interfaces instead.
+        doesn't own, use ## External Interfaces instead. This includes a
+        mocked or not-yet-built backend a frontend fakes: even when the
+        mock contract is written in REST-like endpoint notation (GET
+        /contacts, POST /contacts), it is not this component's own API --
+        model the entire contract in ## External Interfaces (see the Mock
+        Contact Service example there), never split across both sections.
 
       organizing_patterns:
         by_protocol: |
@@ -587,8 +662,8 @@ body:
           ### Orders Service
           Bindings: SOAP (basicHttpBinding), REST (webHttpBinding), TCP (netTcpBinding)
           ### Endpoints
-          - **GetOrder(id): Order** -- all bindings
-          - **ExportOrders(): Stream** -- SOAP, TCP only
+          - `GetOrder(id): Order` -- all bindings
+          - `ExportOrders(): Stream` -- SOAP, TCP only
         note: >
           Named APIs may declare their protocol and use protocol-appropriate
           subsections. Any protocol -- old, current, or not yet invented --
@@ -626,8 +701,8 @@ body:
             grouping.
           examples:
             rest: |
-              - **GET /api/customers**: Paginated customer list.
-              - **POST /api/customers**: Create customer.
+              - `GET /api/customers`: Paginated customer list.
+              - `POST /api/customers`: Create customer.
             graphql: |
               - `query GetCustomer(id: ID!)`: Single customer.
               - `mutation CreateCustomer(...)`: Create.
@@ -668,13 +743,20 @@ body:
       category: design
       description: >
         Catch-all design section for functional behavior not covered by UI,
-        API, or External Interfaces. Use for niche app types, cross-cutting
-        concerns, or any system behavior that doesn't fit cleanly elsewhere.
-        Flat by nature: prescribed and custom H3 subsections sit as peers,
-        each independent. No Contents/Entries pattern applies here -- content
-        under any subsection subdivides however the user wants (H4+, freely),
-        since there's no single "main content" stream to disambiguate from
-        a grouped one the way User Stories or Considerations have.
+        API, or External Interfaces. Before adding an entry, confirm it
+        isn't already covered by Architecture's state/data-flow description,
+        UI, API, or External Interfaces -- Functionality exists for behavior
+        with no better home, not a restatement of flow already described
+        elsewhere. Use for niche app types, cross-cutting concerns, or any
+        system behavior that doesn't fit cleanly elsewhere.
+        Content always sits under a named H3, a prescribed subsection below
+        or a custom one -- unlike most sections, Functionality has no flat
+        default directly under the bare ## Functionality heading.
+        Prescribed and custom H3 subsections sit as peers, each independent.
+        No Contents/Entries pattern applies here -- content under any
+        subsection subdivides however the user wants (H4+, freely), since
+        there's no single "main content" stream to disambiguate from a
+        grouped one the way User Stories or Considerations have.
         Follows the spectrum principle: entries may be conceptual descriptions
         or concrete specifications with schemas, handlers, and behavior details.
         Subsections below are the commonly-needed ones kept in the base
@@ -735,7 +817,13 @@ body:
             schema-database extension defines a fuller taxonomy for these
             artifacts when a spec needs to go deeper.
             For a database this component merely connects to but doesn't
-            own, use ## External Interfaces instead.
+            own, use ## External Interfaces instead. Browser-local
+            persistence (localStorage, IndexedDB, sessionStorage) never
+            belongs here either, even though this component fully defines
+            its shape -- it's connection-level persistence detail, not a
+            queryable database engine with schema/stored-procs semantics,
+            so it belongs in ## External Interfaces (see Domain's llm_note
+            and the External Interfaces description).
 
     # --------------------------------------------------------------------------
     testing:
@@ -748,6 +836,10 @@ body:
         May range from framework declarations only to detailed test scenarios.
         Frameworks, coverage rules, test data, and fixtures are custom subsections
         within whichever testing domain they belong to.
+        Content for a listed domain below (Unit, Integration, E2E, Performance,
+        Security, Accessibility) always uses that literal ### heading -- never
+        restated as an inline label under a flat ## Testing (e.g. "Unit tests
+        for: ..." as a bullet intro is wrong; use ### Unit instead).
       llm_note: >
         [critical] and [high] requirements imply mandatory coverage even when
         this section is silent.
@@ -800,8 +892,14 @@ body:
       conventions:
         placeholders: "Square brackets for dynamic segments: [ComponentName]/, [feature].ts"
         path_refs:    "Backtick paths throughout spec: `src/components/Header.tsx`"
-        format:       "Tree view (preferred) or nested list."
+        format: >
+          Tree view in a fenced code block is the default, including when
+          each path carries a short trailing comment (e.g. `services/  #
+          mock API and persistence adapters`). Fall back to a nested
+          bullet list only when a path's description is too long to fit
+          as a trailing comment.
       example: |
+        ```
         src/
         +-- components/
         |   +-- [ComponentName]/
@@ -809,8 +907,9 @@ body:
         |       +-- [ComponentName].tsx
         |       +-- [ComponentName].test.tsx
         +-- hooks/
-        +-- services/
+        +-- services/     # mock API and persistence adapters
         +-- main.tsx
+        ```
 
     # --------------------------------------------------------------------------
     setup:
@@ -875,11 +974,15 @@ body:
             LLM merges both if defined in both places.
         rollback:        "### Rollback  - Strategy, triggers, recovery procedures."
         monitoring:      "### Monitoring | Observability  - Logging, metrics, alerting, tracing."
-        secrets:
-          heading: "### Secrets | Configuration | Environment Variables"
+        configuration:
+          heading: "### Configuration | Environment Variables"
           description: >
-            Secrets management strategy and variable structure.
             Variable names and descriptions only -- never actual values.
+            Identify standard versus sensitive (secret) variables.
+        secrets: 
+          heading: "### Secrets"
+          description: >
+            Secrets management strategy.
             Reference the secrets store (vault, CI/CD env, key management service).
 
     # ==========================================================================
@@ -907,7 +1010,7 @@ body:
         mistake from being reintroduced later, not maintaining a history log.
 
       status_tags:
-        "[open]":     "Active, unresolved. Default when tag omitted. Alias: [active]"
+        "[open]":     "Active, unresolved. Default when tag omitted. Alias: [active]. Default when tag is omitted."
         "[fixed]":    "Resolved. Alias: [resolved]"
         "[deferred]": "Acknowledged, not currently being addressed."
         "[wont-fix]": "Will not be fixed. Alias: [not-a-bug]"
