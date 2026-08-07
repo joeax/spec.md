@@ -1,5 +1,5 @@
 {
-  "skill_name": "specmd-plan",
+  "skill_name": "specmd-plan-create",
   "evals": [
     {
       "id": 1,
@@ -13,6 +13,9 @@
         "The plan is scoped to the priority-levels feature, not a rewrite of the whole spec",
         "The plan includes Summary of Changes, Tasks, and Implementation Notes sections",
         "Tasks use checkbox status markers (e.g. '- [ ]') consistent with the plan schema",
+        "Each task line carries a stable, sequential ID immediately after its status marker, in the form **T01**, **T02**, ... zero-padded to two digits (e.g. '- [ ] **T01**: ...')",
+        "Implementation Notes does not use task-style status-marker bullet prefixes ([ ], [X], [P], [D], [C]) -- that syntax is reserved for the Tasks section",
+        "The plan does not include an Implementation Log section, since it has not yet been run -- that section is only added by the run skill",
         "The plan is understandable and actionable without needing to re-read SPEC.md",
         "The plan's frontmatter does not fabricate a metadata.author value copied from SPEC.md's author or otherwise invented"
       ]
