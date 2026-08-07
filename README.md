@@ -272,6 +272,12 @@ SPEC.md is methodology-agnostic and can work with various workflows. It is parti
 
 SPEC.md is designed to be agent-agnostic and can work with any coding assistant or agent that supports agent skills, which is practically every coding assistant out there.
 
+### Why is the scope of SPEC.md the entire project, rather than a single feature?
+
+The core philosophy of SPEC.md is that the spec should be the source of truth for the entire project. As models improve and become more capable in the coming years, the burden is shifting from implementing features to documenting intent. The future of software is one where intent is captured, refined, expanded, and version controlled.
+
+This feels inverted from agile development where changes are implemented as they are tasked, unit tests capture intent, then documentation happens in a wiki afterwards (that rarely gets looked at).
+
 ### We have a large project and our team prefers to store specs in separate files in the `/specs` folder. Can we still use SPEC.md?
 
 Yes. Set the `paths` frontmatter property to point to the folder where your specs are stored. The `specmd` skill will then treat all the files in that folder as part of the same spec graph.
