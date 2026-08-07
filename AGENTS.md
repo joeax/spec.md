@@ -1,5 +1,7 @@
 # AGENTS.md
 
+## Coding conventions
+
 ## Python
 - Use the latest installed Python version
 - use strong typing and type hints

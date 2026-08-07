@@ -6,7 +6,7 @@
       "prompt": "Generate a plan to implement the task priority levels feature from SPEC.md.",
       "expected_output": "A self-contained markdown plan document in .specmd/ scoped to the priority-levels feature, with an ordered task checklist an implementation agent could follow without re-reading SPEC.md.",
       "files": [
-        "evals/fixtures/task-tracker/SPEC.md"
+        "fixtures/task-tracker/SPEC.md"
       ],
       "expectations": [
         "A plan document is created inside a .specmd/ folder",

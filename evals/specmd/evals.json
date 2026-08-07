@@ -6,7 +6,7 @@
       "prompt": "Read this SPEC.md and tell me what's implemented vs. still pending.",
       "expected_output": "A clear summary of the task tracker's intent, sections present, and a call-out that task priority levels (under Future Considerations) are not yet implemented.",
       "files": [
-        "evals/fixtures/task-tracker/SPEC.md"
+        "fixtures/task-tracker/SPEC.md"
       ],
       "expectations": [
         "Explicitly identifies task priority levels as not yet implemented",
@@ -20,12 +20,12 @@
       "prompt": "Sync this SPEC.md with the current codebase.",
       "expected_output": "SPEC.md updated to add the undocumented PATCH /tasks/{id}/complete endpoint (additive), a flagged contradiction between the spec's Task.status enum and the code's boolean completed field (not silently resolved), and the priority levels Future Consideration left untouched since it isn't implemented yet.",
       "files": [
-        "evals/fixtures/task-tracker/SPEC.md",
-        "evals/fixtures/task-tracker/package.json",
-        "evals/fixtures/task-tracker/src/server.js",
-        "evals/fixtures/task-tracker/src/store.js",
-        "evals/fixtures/task-tracker/src/models/task.js",
-        "evals/fixtures/task-tracker/src/routes/tasks.js"
+        "fixtures/task-tracker/SPEC.md",
+        "fixtures/task-tracker/package.json",
+        "fixtures/task-tracker/src/server.js",
+        "fixtures/task-tracker/src/store.js",
+        "fixtures/task-tracker/src/models/task.js",
+        "fixtures/task-tracker/src/routes/tasks.js"
       ],
       "expectations": [
         "SPEC.md's API section is updated to include PATCH /tasks/{id}/complete",
@@ -40,11 +40,11 @@
       "prompt": "Generate a SPEC.md for this codebase.",
       "expected_output": "A new SPEC.md grounded in the actual code (Express task API with CRUD routes plus the complete endpoint), not invented structure, and not assuming features the code doesn't have (e.g. no status enum or priority levels). Grounded detail (e.g. Testing/Issues noting real gaps like missing validation or persistence) is welcome since it's verifiable from the code.",
       "files": [
-        "evals/fixtures/task-tracker/package.json",
-        "evals/fixtures/task-tracker/src/server.js",
-        "evals/fixtures/task-tracker/src/store.js",
-        "evals/fixtures/task-tracker/src/models/task.js",
-        "evals/fixtures/task-tracker/src/routes/tasks.js"
+        "fixtures/task-tracker/package.json",
+        "fixtures/task-tracker/src/server.js",
+        "fixtures/task-tracker/src/store.js",
+        "fixtures/task-tracker/src/models/task.js",
+        "fixtures/task-tracker/src/routes/tasks.js"
       ],
       "expectations": [
         "The API section lists all 6 routes present in the code, including PATCH /tasks/{id}/complete",
@@ -90,7 +90,7 @@
       "prompt": "Turn this into a more detailed spec with frontmatter. Let's use the latest version of React. Include features, user stories, architecture, and data design.",
       "expected_output": "A detailed SPEC.md for a frontend-only React/TypeScript contact management app that persists data through a mocked API layer and browser localStorage, with no real backend yet. Correctly separates the mocked backend contract (External Interfaces) from the domain model (Domain) and from this component's own API surface (none -- omitted).",
       "files": [
-        "evals/fixtures/simple-crm-frontend/SPEC.md"
+        "fixtures/simple-crm-frontend/SPEC.md"
       ],
       "expectations": [
         "No ## API section is created, since this component has no backend of its own to expose",
