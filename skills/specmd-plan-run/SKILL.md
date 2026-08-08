@@ -22,6 +22,7 @@ Use this skill to implement a plan document's task checklist in the codebase, ke
 
 The parts of the plan schema this skill needs to do its job (the full schema, including how a plan is generated from a spec, lives with `specmd-plan-create` — Run only consumes the document, it doesn't produce one):
 
+- **Title** — the document body must start with `# Execution Plan`, exactly, as its first line. Read-only context for Run.
 - **Frontmatter** — a YAML block at the top. The only field Run ever writes is `state`, one of:
   - `ready` — not yet run.
   - `partial` — some tasks remain `[ ]` or `[P]` (not yet in a terminal state) and this run intentionally stopped short of them by design.
@@ -29,7 +30,7 @@ The parts of the plan schema this skill needs to do its job (the full schema, in
   - `blocked` — no progress was possible at all on this invocation.
   Other frontmatter fields (`id`, `description`, `generated`, `spec`, `metadata`) may be present — leave them untouched.
 - **`## Summary of Changes`** (alias `## Summary`) — brief bulleted overview of the plan's scope. Read-only context for Run.
-- **`## Tasks`** (alias `## Checklist`) — the checklist to execute. Each line has a status marker followed by a stable ID like `**T01**` (sequential, zero-padded, never renumbered or reused):
+- **`## Tasks`** (alias `## Checklist`) — the checklist to execute. Each line has a status marker followed by a stable ID like `**T01**` (sequential, zero-padded, never renumbered or reused, no gaps). Tasks are never removed from this section once the plan is generated — a task Run determines is unneeded or won't be implemented is marked `[D]` (deferred) with the reason in an Implementation Log entry, not deleted from the checklist.
   - `[ ]` not started, `[X]` complete, `[P]` partial, `[D]` deferred, `[C]` clarification needed.
   - Example: `- [P] **T03**: Add pagination (UI complete; server cursor handling pending).`
 - **`## Implementation Notes`** — assumptions, constraints, and reasons behind tasks' *initial* status markers, authored once at plan creation. Never edit this section during Run; findings from execution go in Implementation Log instead. It never uses task-style status-marker prefixes.
@@ -90,6 +91,7 @@ Output: codebase changes implementing the requested tasks, plus an updated plan 
 - Prefer small, incremental changes per task over large batch rewrites, consistent with the plan's own task granularity.
 - Keep the plan document's structure (frontmatter fields, section headings, status marker vocabulary) conformant to the plan document format above at all times.
 - Never edit the plan's frontmatter except the `state` field (Run step 6), and never edit Implementation Notes — all execution-time progress and findings belong in task status markers and the Implementation Log.
+- Never delete a task line, even one that turns out unneeded or obsolete due to drift — mark it `[D]` with an Implementation Log entry explaining why (Run step 4) so its ID stays reserved and the record stays intact.
 
 ## Additional resources
 

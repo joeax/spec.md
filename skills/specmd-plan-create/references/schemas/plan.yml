@@ -118,9 +118,14 @@ body:
         id: >
           Each task carries a stable ID immediately after the status marker,
           in the form **T01**, **T02**, ... (sequential, zero-padded to 2
-          digits). Assigned once when the task is first added; never
-          renumbered or reused, even if an earlier task is later removed.
-          Implementation Log entries reference tasks by this ID.
+          digits, no gaps). Assigned once when the task is first added;
+          never renumbered or reused. Once a plan is generated, tasks are
+          never removed from the Tasks section -- a task that turns out
+          unneeded or won't be implemented is marked [D] (deferred) with
+          the reason recorded in Implementation Notes (if known at
+          generation time) or Implementation Log (if discovered during a
+          run), not deleted from the checklist. Implementation Log entries
+          reference tasks by this ID.
         examples: |
           - [ ] **T01**: Implement customer list page and filters.
           - [X] **T02**: Create API client service and error wrapper.
@@ -137,6 +142,7 @@ body:
         - "Every actionable item from the source spec must appear exactly once."
         - "Items may be grouped by subsection labels if helpful."
         - "Non-actionable context belongs in Implementation Notes, not Tasks."
+        - "Tasks are never removed once the plan is generated -- mark an unneeded or won't-implement task [D] instead of deleting its line, so its ID stays reserved and its status is explained in Implementation Notes or Implementation Log."
 
     implementation-notes:
       heading: "## Implementation Notes"
@@ -227,7 +233,7 @@ coverage:
 validation:
   - "Body includes all required sections: Summary of Changes, Tasks, Implementation Notes."
   - "Tasks use only allowed status markers: [ ], [X], [P], [D], [C]."
-  - "Each task line carries a stable ID (**T01**, **T02**, ...) immediately after the status marker."
+  - "Each task line carries a stable ID (**T01**, **T02**, ...) immediately after the status marker, with no gaps in the sequence."
   - "Tasks reflect actionable scope across all relevant source spec sections."
   - "Deferred, partial, or unclear items are explained in Implementation Notes."
   - "Implementation Notes contains no task-style status-marker bullet prefixes."
