@@ -140,7 +140,7 @@ body:
         "[C]": Clarification needed
       rules:
         - "Every actionable item from the source spec must appear exactly once."
-        - "Items may be grouped by subsection labels if helpful."
+        - "Items may be grouped under '### ' subsection headings (e.g. '### Backend') if helpful. Task bullets stay zero-indent, top-level '- ' items -- never nest a task as an indented sub-bullet under a group label; that breaks task parsing since only top-level '- ' lines are recognized as tasks."
         - "Non-actionable context belongs in Implementation Notes, not Tasks."
         - "Tasks are never removed once the plan is generated -- mark an unneeded or won't-implement task [D] instead of deleting its line, so its ID stays reserved and its status is explained in Implementation Notes or Implementation Log."
 

@@ -122,6 +122,31 @@
         "The response frames this as a structural/mechanical validation failure (e.g. references the validator or 'structurally invalid'), distinct from the contextual scope/tampering framing used for plan-corrupt.md",
         "The response tells the user the plan may have been edited or corrupted since it was generated and to regenerate a fresh plan using the original prompt, rather than running or hand-patching this one"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "Run the plan in plan-subsections.md against this codebase.",
+      "expected_output": "The plan's Tasks section groups its three tasks under '### Data model' and '### API' subsection headings instead of one flat list. This is valid, documented plan structure -- the skill treats the headings as transparent and runs the plan exactly as it would a flat one. All three tasks (completedAt field, PATCH complete endpoint, completed query filter) are implemented and marked [X], the subsection headings are preserved as-is, and the plan's frontmatter state becomes `completed` with no trailing comment.",
+      "files": [
+        "fixtures/task-tracker/plan-subsections.md",
+        "fixtures/task-tracker/package.json",
+        "fixtures/task-tracker/src/server.js",
+        "fixtures/task-tracker/src/store.js",
+        "fixtures/task-tracker/src/models/task.js",
+        "fixtures/task-tracker/src/routes/tasks.js"
+      ],
+      "expectations": [
+        "src/models/task.js's createTask sets an initial completedAt field",
+        "src/routes/tasks.js gains a PATCH /:id/complete route matching the existing route style, backed by a store.complete(id) helper",
+        "The list route supports a completed=true|false query filter while preserving unfiltered behavior when the param is absent",
+        "T01, T02, and T03 are all marked [X] in plan-subsections.md's Tasks section",
+        "The '### Data model' and '### API' subsection headings are still present in plan-subsections.md, unchanged, with their tasks underneath",
+        "The run is not stopped or treated as structurally invalid/corrupted on account of the subsection headings -- no report to the user about a malformed Tasks section or a regeneration recommendation",
+        "plan-subsections.md's Implementation Notes section is left byte-for-byte unchanged",
+        "plan-subsections.md's frontmatter fields other than state are left unchanged",
+        "plan-subsections.md's frontmatter state is set to exactly `completed`, not `completed  # see log`",
+        "An Implementation Log section is present with at least a closing summary line describing the run's outcome"
+      ]
     }
   ]
 }
