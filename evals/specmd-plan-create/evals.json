@@ -3,6 +3,7 @@
   "evals": [
     {
       "id": 1,
+      "name": "eval-1-priority-levels-plan",
       "prompt": "Generate a plan to implement the task priority levels feature from SPEC.md.",
       "expected_output": "A self-contained markdown plan document in .specmd/ scoped to the priority-levels feature, with an ordered task checklist an implementation agent could follow without re-reading SPEC.md.",
       "files": [
@@ -18,6 +19,62 @@
         "The plan does not include an Implementation Log section, since it has not yet been run -- that section is only added by the run skill",
         "The plan is understandable and actionable without needing to re-read SPEC.md",
         "The plan's frontmatter does not fabricate a metadata.author value copied from SPEC.md's author or otherwise invented"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-partial-implementation",
+      "prompt": "Generate a plan to implement the task priority levels feature from SPEC.md.",
+      "expected_output": "A self-contained plan in .specmd/ whose task status markers reflect the codebase's actual partial progress on priority levels (model + storage layer already have a priority field wired in with a default; the HTTP layer does not yet accept, validate, filter, or sort by it), rather than assuming the feature is entirely unstarted.",
+      "files": [
+        "fixtures/task-tracker-partial-priority/SPEC.md",
+        "fixtures/task-tracker-partial-priority/package.json",
+        "fixtures/task-tracker-partial-priority/src/server.js",
+        "fixtures/task-tracker-partial-priority/src/store.js",
+        "fixtures/task-tracker-partial-priority/src/models/task.js",
+        "fixtures/task-tracker-partial-priority/src/routes/tasks.js"
+      ],
+      "expectations": [
+        "A plan document is created inside a .specmd/ folder",
+        "The plan inspects the existing src/ code before writing tasks, rather than assuming a from-scratch build",
+        "The task for adding a priority field/type to src/models/task.js is marked done ([X]) or in-progress ([P]), not [ ], since models/task.js already has a defaulted priority field",
+        "Tasks for accepting, validating, filtering, or sorting by priority in src/routes/tasks.js are marked not-started ([ ]), since routes/tasks.js does not implement any of that yet",
+        "The task for persisting priority in src/store.js is marked not-started ([ ]), since store.js's create() does not forward priority",
+        "The plan does not claim the priority-levels feature is already fully implemented",
+        "Tasks use stable, sequential IDs in the form **T01**, **T02**, ... zero-padded to two digits",
+        "The plan's frontmatter does not fabricate a metadata.author value"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "eval-3-out-of-spec-request",
+      "prompt": "Generate a plan to add rate limiting to the API so we don't get hammered by bots.",
+      "expected_output": "The skill recognizes that rate limiting is not mentioned anywhere in SPEC.md and either asks the user to confirm this out-of-spec scope before planning it, or -- if it proceeds -- clearly flags in the plan that this requirement is not derived from SPEC.md and states the assumptions being made (e.g. rate limit thresholds, storage for counters), rather than presenting fabricated specifics as if they were spec-derived requirements.",
+      "files": [
+        "fixtures/task-tracker/SPEC.md"
+      ],
+      "expectations": [
+        "The response does not claim SPEC.md specifies rate limiting or cite it as an existing requirement",
+        "The response explicitly flags that rate limiting is outside the current SPEC.md scope, either by asking for confirmation before proceeding or by stating this clearly in the plan's Implementation Notes",
+        "If specific rate-limit parameters (thresholds, time windows, storage mechanism) are chosen, they are presented as explicit assumptions, not asserted as spec-derived facts",
+        "If a plan document is produced, it still follows the plan schema (Summary of Changes, Tasks with **T01**-style IDs, Implementation Notes) and lives in .specmd/"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "eval-4-existing-plan-collision",
+      "prompt": "Generate a plan to implement the task priority levels feature from SPEC.md.",
+      "expected_output": "Since .specmd/ already contains a plan for this exact same feature (task-tracker-api-plan-20260806-1.md, state: ready), the skill acknowledges the existing plan rather than silently duplicating or clobbering it, and any new or updated plan content remains unambiguous about which plan an implementer should run.",
+      "files": [
+        "fixtures/task-tracker-existing-plan/SPEC.md",
+        "fixtures/task-tracker-existing-plan/.specmd/task-tracker-api-plan-20260806-1.md"
+      ],
+      "expectations": [
+        "The response acknowledges that a plan for the priority-levels feature already exists in .specmd/ rather than ignoring it",
+        "The existing task-tracker-api-plan-20260806-1.md file is not silently overwritten with different content without the change being clearly surfaced",
+        "If a second plan file is created, its filename, description, or state clearly distinguishes it from the existing plan so it's unambiguous which one an implementer should run",
+        "No two plan documents in .specmd/ are left both indicating state: ready for the same feature scope without differentiation",
+        "The plan content (whichever file it ends up in) remains accurately scoped to the priority-levels feature"
       ]
     }
   ]
