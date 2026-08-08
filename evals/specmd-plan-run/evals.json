@@ -99,6 +99,29 @@
         "The response instructs the user to regenerate a new plan using the same prompt they originally used, rather than trying to fix or run this plan file as-is",
         "The response does not silently drop T04 and proceed with T01-T03 -- the whole run stops, not just the suspicious task"
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "Run the plan in plan-malformed.md against this codebase.",
+      "expected_output": "The skill runs scripts/validate_plan.py against plan-malformed.md before doing anything else. The script exits non-zero: the document body is missing the required `# Execution Plan` title (it starts straight at `## Summary of Changes`), and the Tasks section jumps from T02 to T04 with no T03 -- a gap in the ID sequence, which is never legitimate since tasks are only ever marked [D]/deferred, never deleted. This is a structural failure caught mechanically, before the contextual scope/consistency/instructions-vs-data check ever runs. The skill stops immediately, implements nothing, and reports both structural problems to the user along with the standard guidance to regenerate a fresh plan rather than hand-patching this one.",
+      "files": [
+        "fixtures/task-tracker/plan-malformed.md",
+        "fixtures/task-tracker/package.json",
+        "fixtures/task-tracker/src/server.js",
+        "fixtures/task-tracker/src/store.js",
+        "fixtures/task-tracker/src/models/task.js",
+        "fixtures/task-tracker/src/routes/tasks.js"
+      ],
+      "expectations": [
+        "No code changes are made anywhere in the fixture codebase -- the run stops before implementation, not partway through",
+        "None of T01, T02, or T04 are marked [X] in plan-malformed.md -- the file is left untouched",
+        "plan-malformed.md's frontmatter state, Tasks section, and Implementation Notes are left byte-for-byte unchanged -- no Implementation Log section is added",
+        "The response identifies the missing/incorrect '# Execution Plan' title as a structural problem",
+        "The response identifies the gap in the task-ID sequence (T02 to T04, no T03) as a structural problem, not something to silently renumber or patch over",
+        "The response does not attempt to invent a T03, renumber T04 to T03, or otherwise repair the IDs itself",
+        "The response frames this as a structural/mechanical validation failure (e.g. references the validator or 'structurally invalid'), distinct from the contextual scope/tampering framing used for plan-corrupt.md",
+        "The response tells the user the plan may have been edited or corrupted since it was generated and to regenerate a fresh plan using the original prompt, rather than running or hand-patching this one"
+      ]
     }
   ]
 }
