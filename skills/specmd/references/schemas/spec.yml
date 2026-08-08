@@ -446,6 +446,15 @@ body:
           constraints: >
             (required), (max 254 chars), (ref: Order.id),
             (range: 0-100), (regex: ^[A-Z]{2}[0-9]{4}$)
+          table_form: >
+            A markdown table (columns: Field, Type, Notes/Constraints) is a
+            valid alternative to the bullet list for an entity's fields.
+            Default to the bullet list when writing an entity from scratch.
+            Switch to the table form only once it's established as the
+            user's preference -- an existing spec already using tables for
+            its entities, or the user explicitly asking for or editing
+            toward one -- and keep using it for that spec's entities from
+            then on rather than reverting to bullets.
           example: |
             #### Customer
             - id: `uuid`
@@ -453,6 +462,15 @@ body:
             - email: `Email`              <- references a Type
             - status: `CustomerStatus`    <- references a Type (enum)
             - orders: `[Order]`           <- relationship implied by list type
+          table_example: |
+            #### Customer
+            | Field | Type | Notes |
+            |---|---|---|
+            | id | `uuid` | |
+            | name | `string` | required |
+            | email | `Email` | references a Type |
+            | status | `CustomerStatus` | references a Type (enum) |
+            | orders | `[Order]` | relationship implied by list type |
 
         relationships:
           heading: "### Relationships"
@@ -1028,6 +1046,12 @@ body:
           - Dark mode -- pending design tokens.
           ### Not a Bug
           - IE11 -- out of scope per requirements.
+        note: >
+          Default to the compact form. Once the list grows large (as a
+          rule of thumb, past ~20 items) or per-status scanning becomes
+          useful, switch to the subsection form, grouping items by their
+          status tag into ### Active / ### Fixed / ### Deferred / ### Not
+          a Bug.
 
       subsections:
         active:   "### Active | Open"
