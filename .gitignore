@@ -237,3 +237,4 @@ evals/*-workspace/
 # Misc
 *.ignore
 old/
+notes/
