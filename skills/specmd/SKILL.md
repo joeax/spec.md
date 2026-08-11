@@ -1,6 +1,6 @@
 ---
 name: specmd
-description: Read, define, plan, and sync SPEC.md files — the agent-optimized spec format for a project's intent. Use whenever the user references a SPEC.md file, or asks to define/create a "spec" for a software project (e.g. "define a new spec for a car-photos website"), wants an implementation plan derived from spec requirements, or wants a spec reconciled with the codebase.
+description: Read, define, and sync SPEC.md files — the agent-optimized spec format for a project's intent. Use whenever the user references a SPEC.md file, asks to define/create a "spec" for a software project (e.g. "define a new spec for a car-photos website"), or wants a spec reconciled with the codebase. For turning spec requirements into an implementation plan, use the specmd-plan skill instead.
 metadata:
   author: joeax
   version: 2026-08-04
@@ -8,7 +8,7 @@ metadata:
 
 # SPEC.md Skill
 
-Use this skill to read, define, plan, and sync SPEC.md documents. Follow the instructions below carefully and prefer the most specific source of truth available.
+Use this skill to read, define, and sync SPEC.md documents. Follow the instructions below carefully and prefer the most specific source of truth available.
 
 ## Core principles
 
@@ -20,7 +20,7 @@ Use this skill to read, define, plan, and sync SPEC.md documents. Follow the ins
 
 ## Required reading order
 
-Whenever a function below needs to load an existing SPEC.md file (Read, Plan, Sync), follow this order:
+Whenever a function below needs to load an existing SPEC.md file (Read, Sync), follow this order:
 
 1. Read the core schema file first to understand the rules of the SPEC.md framework.
 2. Read the relevant SPEC.md file from the project root. Only read other SPEC.md files if they are clearly in scope.
@@ -55,28 +55,13 @@ Steps:
 1. Determine whether the request is for a new project or an existing codebase.
 2. Read the core schema and spec schema file(s) so the new spec follows the expected structure — read any extension or custom schemas too, if applicable.
 3. If the project already contains code, inspect it and ground every section in what the code actually does. Detail that's verifiably true of the code (a Testing section noting no tests exist, an Issues entry for a real gap like missing input validation) is welcome here — it's grounded observation, not fabrication.
-4. If the project is empty, flesh out a reasonably complete spec from the user's description using best judgment and the smallest reasonable assumptions, stated explicitly (per Core principles) — don't stop at just a title and description by default. If the user explicitly asks for a simple, minimal, or bare-bones spec, use frontmatter, title, and description only instead (see the simple spec template in Additional resources).
-5. Create the spec at the project root unless the user explicitly requests another location.
+4. If the project is empty, flesh out a reasonably complete spec from the user's description using best judgment and the smallest reasonable assumptions, stated explicitly (per Core principles) — don't stop at just a title and description by default. If the user explicitly asks for a simple, minimal, or bare-bones spec, use frontmatter, title, and description only instead (see the simple spec example in Additional resources). Otherwise, for a fuller spec, consult the detailed spec example in Additional resources — it shows canonical section order and structure (Domain's Entities/Relationships/Types split, the External Interfaces vs. API boundary, and more) in one coherent example, not just described in isolation per section.
+5. Order sections per the spec schema's recommended order unless the user's own description or an existing codebase/spec structure implies a different order. When the user names specific sections to include (e.g. "include features, user stories, and architecture"), treat that as emphasis on what must be present, not an exhaustive list — still include other sections clearly warranted by the described product (e.g. a frontend application warrants `## UI` even if not explicitly named).
+6. Create the spec at the project root unless the user explicitly requests another location.
 
 Output: a new SPEC.md file, usable and ready for planning or implementation.
 
-### 3. Plan
-
-Intent: Turn a focused portion of a SPEC.md document into an actionable implementation plan.
-
-Use the Plan function when the user needs a plan before changing code, especially when the request is scoped to a subset of the spec such as a feature, module, API surface, or a specific set of requirements.
-
-Steps:
-1. Identify the scope of the request. If the user asks for a plan for specific sections or a focused change, limit the plan to that scope rather than the entire spec.
-2. Follow the Required reading order above for the relevant SPEC.md file. Also inspect the current codebase for the requested scope to determine what's already implemented, partially implemented, or missing — this determines each task's initial status marker ([X]/[P]/[ ]/[D]/[C]) rather than assuming everything is unstarted.
-3. Read the plan schema file so the generated plan document follows the expected structure.
-4. Break the requested work into clear, ordered implementation steps that can be executed in chunks or iteratively.
-5. Create a markdown plan document in the `.specmd/` folder that stands on its own: an implementation agent must be able to execute it without loading SPEC.md or this skill. If `.specmd/` already contains other plan documents, make sure the new one is clearly distinguishable from them (via filename, `description`, and `state`) so it's unambiguous which plan an implementer should run.
-6. Keep the plan focused on the requested change and call out assumptions, risks, or unresolved details.
-
-Output: a self-contained markdown plan document, scoped to the user’s request, that an implementation agent can execute without further reference to SPEC.md or this skill.
-
-### 4. Sync
+### 3. Sync
 
 Intent: Keep an existing SPEC.md document aligned with the codebase as the project evolves.
 
@@ -108,13 +93,13 @@ When compacting is necessary:
 - Keep outputs structured and useful for downstream implementation or review, preferring bullet points over prose paragraphs — especially for summaries.
 - When creating a new document's frontmatter, populate only fields the resolved schema defines — never invent custom top-level fields.
 - In a new document's `metadata`, populate only objective, verifiable fields the schema defines (e.g. a creation date) — never `author`, and never `updated`, unless the user explicitly provides an author name or the agent has its own identity to attribute. Don't add a `changelog` entry on creation unless explicitly requested.
-- When a schema heading lists multiple pipe-separated aliases (e.g. `### Secrets | Configuration | Environment Variables`), the pipe list is a menu of alternative names, not literal heading text — write only the one alias that matches the actual content (e.g. write `### Environment Variables` when the section only documents an env var), never the full aliased string.
-- When tagging Requirements by priority, omit the tag entirely for `[normal]` items — normal is already the default when no tag is present. Only write `[critical]`, `[high]`, or `[low]` where the priority actually deviates from normal.
+- When a schema heading lists multiple pipe-separated aliases (e.g. `### Configuration | Environment Variables`), the pipe list is a menu of alternative names, not literal heading text — write only the one alias that matches the actual content (e.g. write `### Environment Variables` when the section only documents an env var), never the full aliased string.
+- When a schema section defines a canonical `heading` plus a separate list of alternate names (e.g. `## Domain` aliased to `## Data Design`, `## Domain Model`, etc.), default to the canonical heading when creating a new document. Use an alias only when the user's own wording, an existing codebase, or the spec being synced already establishes that alias as the standing name.
+- For any `[tagname]` bracket tag whose vocabulary defines a default-when-omitted value (e.g. Requirements priority defaults to `[normal]`, Issues status defaults to `[open]`/`[active]`), omit the tag entirely for items at that default — don't write it out. Only write a tag where the value actually deviates from the section's default.
 
 ## Additional resources
 
 - [Core schema file](./references/schemas/core.yml): core schema for the SPEC.md framework.
 - [Spec schema file](./references/schemas/spec.yml): full schema for the SPEC.md file.
-- [Plan schema file](./references/schemas/plan.yml): full schema for the plan document generated by the Plan function.
-- [Plan template](./references/templates/plan.md): template for the plan document generated by the Plan function.
-- [Simple spec template](./references/templates/spec-simple.md): example of a simple SPEC.md file — frontmatter, title, and description only.
+- [Simple spec example](./references/examples/spec-simple.md): example of a simple SPEC.md file — frontmatter, title, and description only.
+- [Detailed spec example](./references/examples/spec-detailed.md): example of a fully fleshed-out SPEC.md — one coherent document showing canonical section order and structure, not a form to fill in.

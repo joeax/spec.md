@@ -5,8 +5,9 @@
 #
 # PLAN.md is an agent-oriented execution artifact generated from a
 # (SPEC.md) file. It captures a concise implementation summary, a complete
-# actionable task checklist, and implementation notes for assumptions,
-# clarifications, and constraints.
+# actionable task checklist, implementation notes for assumptions,
+# clarifications, and constraints, and (once executed) an implementation
+# log of what happened during the run.
 #
 # Filename: plan-{yyyymmdd}-{n}.md (recommended)
 #
@@ -49,6 +50,15 @@ frontmatter:
 
   state: '"ready" | "partial" | "completed" | "blocked"'
   # Overall execution readiness/state for the plan document.
+  # - ready:     not yet run.
+  # - partial:   a run intentionally covered a subset of tasks; more remain
+  #              by design and further runs are expected.
+  # - completed: a run finished working its full scope. May carry a trailing
+  #              `# see log` comment (e.g. `state: completed  # see log`) when
+  #              one or more in-scope tasks remain unresolved -- this is the
+  #              run skill's signal that it will not re-attempt automatically;
+  #              check Implementation Log for what's outstanding.
+  # - blocked:   no progress was possible at all on this invocation.
 
   spec: string?
   # Optional reference ID of the originating SPEC.md.
@@ -105,12 +115,23 @@ body:
           - "- [P]"
           - "- [D]"
           - "- [C]"
+        id: >
+          Each task carries a stable ID immediately after the status marker,
+          in the form **T01**, **T02**, ... (sequential, zero-padded to 2
+          digits, no gaps). Assigned once when the task is first added;
+          never renumbered or reused. Once a plan is generated, tasks are
+          never removed from the Tasks section -- a task that turns out
+          unneeded or won't be implemented is marked [D] (deferred) with
+          the reason recorded in Implementation Notes (if known at
+          generation time) or Implementation Log (if discovered during a
+          run), not deleted from the checklist. Implementation Log entries
+          reference tasks by this ID.
         examples: |
-          - [ ] Implement customer list page and filters.
-          - [X] Create API client service and error wrapper.
-          - [P] Add pagination (UI complete; server cursor handling pending).
-          - [D] Add SSO integration (deferred to identity milestone).
-          - [C] Confirm canonical source for exchange rates.
+          - [ ] **T01**: Implement customer list page and filters.
+          - [X] **T02**: Create API client service and error wrapper.
+          - [P] **T03**: Add pagination (UI complete; server cursor handling pending).
+          - [D] **T04**: Add SSO integration (deferred to identity milestone).
+          - [C] **T05**: Confirm canonical source for exchange rates.
       status_markers:
         "[ ]": Not started
         "[X]": Complete
@@ -119,8 +140,9 @@ body:
         "[C]": Clarification needed
       rules:
         - "Every actionable item from the source spec must appear exactly once."
-        - "Items may be grouped by subsection labels if helpful."
+        - "Items may be grouped under '### ' subsection headings (e.g. '### Backend') if helpful. Task bullets stay zero-indent, top-level '- ' items -- never nest a task as an indented sub-bullet under a group label; that breaks task parsing since only top-level '- ' lines are recognized as tasks."
         - "Non-actionable context belongs in Implementation Notes, not Tasks."
+        - "Tasks are never removed once the plan is generated -- mark an unneeded or won't-implement task [D] instead of deleting its line, so its ID stays reserved and its status is explained in Implementation Notes or Implementation Log."
 
     implementation-notes:
       heading: "## Implementation Notes"
@@ -128,13 +150,35 @@ body:
       required: true
       description: >
         Notes for assumptions, clarifications, constraints, deliberate omissions,
-        unresolved dependencies, and reasons for deferred/partial items.
+        and reasons for each task's *initial* status marker. Authored once when
+        the plan is created, before any execution -- not updated afterward.
+        Findings, drift, and outcomes discovered while running the plan belong
+        in Implementation Log instead, not here.
       format:
         preferred: markdown bullets
       rules:
         - "Document why an item is [D], [P], or [C] when not obvious from task text."
         - "Record key restrictions (technical, policy, environment, ownership)."
         - "Avoid repeating full task text; reference task intent concisely."
+        - "Must not use task-style status-marker bullet prefixes ([ ], [X], [P], [D], [C]) -- that syntax is reserved for the Tasks section."
+
+    implementation-log:
+      heading: "## Implementation Log"
+      aliases: []
+      required: false
+      description: >
+        A running record written during execution (by the run skill) of what
+        happened to tasks that didn't reach a clean, caveat-free [X]
+        completion -- drift that made a task obsolete, a blocker hit
+        mid-implementation, a partial result, etc. Absent from a freshly
+        generated plan; created the first time the plan is run.
+      format:
+        preferred: markdown bullets
+      rules:
+        - "One entry per task that is not a clean, caveat-free [X] -- reference the task by ID (e.g. **T07**)."
+        - "Clean [X] completions and untouched [ ] tasks don't need an entry."
+        - "Entries are appended across run invocations, not rewritten -- preserve prior entries."
+        - "A closing summary line stating the outcome of the run (state reached, and a pointer to any remaining unresolved tasks) is expected once execution stops."
 
 
 # ==============================================================================
@@ -189,7 +233,10 @@ coverage:
 validation:
   - "Body includes all required sections: Summary of Changes, Tasks, Implementation Notes."
   - "Tasks use only allowed status markers: [ ], [X], [P], [D], [C]."
+  - "Each task line carries a stable ID (**T01**, **T02**, ...) immediately after the status marker, with no gaps in the sequence."
   - "Tasks reflect actionable scope across all relevant source spec sections."
   - "Deferred, partial, or unclear items are explained in Implementation Notes."
+  - "Implementation Notes contains no task-style status-marker bullet prefixes."
+  - "If the plan has been run, tasks not in a clean, caveat-free [X] state have a corresponding Implementation Log entry."
   - "No secrets are included in notes or task text."
 

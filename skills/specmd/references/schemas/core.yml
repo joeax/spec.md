@@ -67,6 +67,9 @@
 # FRONTMATTER
 # YAML block between triple-dash fences at the top of the .spec.md file.
 # All fields are optional.
+# Indentation is spaces only, never tabs -- this is a YAML parser
+# requirement, not a specmd style choice; tab-indented frontmatter can
+# fail to parse outright.
 # ==============================================================================
 
 frontmatter:
@@ -118,8 +121,10 @@ frontmatter:
 
   # -- Tech Stack --------------------------------------------------------------
   # Machine-readable technical metadata.
-  # Replaces a ## Specifications / ## Specs body section.
   # All fields accept inline comma-delimited string or YAML list.
+  # Prefer inline for a single item or a short list (up to ~50 chars) that
+  # stays easy to read comma-joined -- never a one-item YAML list. Move to
+  # a YAML list once it grows past that or needs one entry per line.
   # Treated as a starting point, not the final word -- ## Requirements /
   # ### Technical is authoritative if the two contradict. Conflicts are
   # surfaced in the Plan phase, never silently resolved.
@@ -127,10 +132,12 @@ frontmatter:
   tech:
 
     languages: '[string] | string?'
+    # languages: TypeScript              <- single item, no list needed
     # languages: TypeScript, Python
     # languages: [TypeScript, Python]
 
     frameworks: '[string] | string?'
+    # frameworks: React v19+              <- single item, no list needed
     # frameworks: React v19+, Tailwind CSS
     # frameworks:
     #   - React v19+
@@ -176,6 +183,27 @@ frontmatter:
     #   - ../design-system/tokens.spec.md
     #   - spec: ../ops/deployment.spec.md
     #     reason: Shares deployment pipeline
+
+  # -- Spec Discovery ------------------------------------------------------------
+  # Distinct from `links` above: `links` names specific, known specs and their
+  # relationship to this one. `paths` instead tells the skill where to find
+  # specs it doesn't yet know about -- for teams that colocate specs in a
+  # dedicated folder rather than alongside each component, or a monorepo root
+  # SPEC.md that holds only architecture/standards and defers all detailed
+  # specs elsewhere. The skill treats every matched .spec.md as part of this
+  # project's spec graph, in addition to (not instead of) anything in `links`.
+  # Resolved recursively -- a discovered spec's own `paths` (if any) is
+  # followed the same way.
+
+  paths: '[string]?'
+  # Folder(s) or glob pattern(s), relative to this file, where additional
+  # specs live.
+  # Examples:
+  #   paths: specs/
+  #   paths: specs/**/*.spec.md
+  #   paths:
+  #     - specs/
+  #     - packages/*/SPEC.md
 
   # -- Instructions ------------------------------------------------------------
   # Instructions for the agent to follow when editing the spec.
