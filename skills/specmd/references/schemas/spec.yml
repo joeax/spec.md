@@ -35,6 +35,11 @@
 #   never a one-item bullet list. Move to (2) or (3) once the list grows
 #   past that, needs one entry per line for readability, or contains
 #   commas/other characters that make a comma-joined line ambiguous.
+#   (2) also accepts an ordered/numbered list (1. TypeScript\n2. Python)
+#   as a variant of the same style -- functionally interchangeable with
+#   unordered bullets, but the conventional way an author signals
+#   IDENTIFIERS mode 1 (positional referencing) on that list. See
+#   IDENTIFIERS below for what numbering does and doesn't change.
 #
 # NAMED ITEM DETAIL
 #   Whenever a section lists named items -- UI components, pages/screens,
@@ -55,6 +60,111 @@
 #   delimited run) and default-when-omitted behavior are defined per section.
 #   A tag vocabulary from one section does not apply in another. Sections
 #   without a defined vocabulary carry no tags.
+#
+# IDENTIFIERS
+#   List items, paragraphs, and headings all carry no identity of their
+#   own by default -- headings get a free auto-generated anchor (see
+#   HEADING ANCHORS below), but it's rename-fragile and collides on
+#   duplicate heading text, so an assigned ID is still the sturdier option
+#   wherever that matters. Any of the three content types may adopt an
+#   identifier, inferred from what's actually written -- no frontmatter
+#   flag required. This includes list items expressed as subsections
+#   rather than bullets (see LIST FLEXIBILITY style 3) -- the identifier
+#   mechanism is the same either way, just using the heading form instead
+#   of the list-item form below. A spec may mix modes freely, including
+#   using no identifiers at all in most places and only reaching for one
+#   where cross-referencing is actually needed.
+#
+#   List items specifically support two positional modes, chosen
+#   per-section (a spec may mix modes across sections):
+#
+#     0 - None (default). Plain bullets, no positional commitment. The
+#         skill edits freely -- reorder, remove, compact -- same as any
+#         other list in the schema.
+#
+#     1 - Positional, referenced by breadcrumb path (e.g.
+#         `Requirements > Functional > 3`) and resolved by 1-based count
+#         from the top of the target list -- this works whether the list
+#         is written as `1. 2. 3.` or plain `- - -`; visible numbering is
+#         a readability convention for the reader, not what makes a
+#         position resolvable. What mode 1 actually signals is a
+#         commitment: this list's positions are meaningful and may be
+#         referenced, so once the skill is the one editing this section
+#         it is always append-only -- new items go at the end; existing
+#         items are never inserted-above, reordered, or deleted (deleting
+#         alone still renumbers everything after it on render, since
+#         standard Markdown ordered lists renumber sequentially regardless
+#         of source digits). Retire an obsolete item in place instead
+#         (e.g. prefix its text "Retired -- superseded by N") rather than
+#         removing the line. On every skill-driven append, normalize any
+#         visible numbers so source digits match rendered position exactly
+#         -- never leave a gap or stale digit. A manual edit that reorders
+#         or deletes items by hand and breaks an existing reference is
+#         outside what this mechanism guards against.
+#
+#   Explicit IDs (mode 2) apply to list items, paragraphs, and headings:
+#
+#     List item:  `- **FR-1**: [high] Visitors must...`
+#                 (bold; before any bracket tag, before the item's text)
+#     Paragraph:  `**M-002**: This is the start of a long paragraph...`
+#                 (bold; start of the paragraph)
+#     Heading:    `#### FR-2: Authentication layer`
+#                 (plain, no bold -- headings are already visually set
+#                 off by their level, and a plain prefix guarantees no
+#                 stray emphasis markup can leak into the auto-generated
+#                 anchor if a renderer's slugifier doesn't strip `**`
+#                 first; see HEADING ANCHORS below for what this does to
+#                 the anchor. `#### FR-2: Authentication layer` is
+#                 unremarkable ATX heading text -- ordinary CommonMark,
+#                 nothing renderer-specific.)
+#
+#   `{id}` is free-form (author's choice): a semantic prefix+number
+#   (`FR-1`), a bare number (`1`), or a name (`checkout-flow`) are all
+#   valid -- the schema doesn't prescribe a vocabulary per section.
+#   Stable under insertion, deletion, and reordering by anyone, human or
+#   skill -- the ID travels with the content unit, not its position or
+#   wording.
+#
+#   Once assigned under mode 1 or 2, an ID/position is never deliberately
+#   reused for a different item, even after the original item is retired.
+#
+#   HEADING ANCHORS
+#   A heading with no assigned ID still gets a stable-enough handle for
+#   free via the same auto-generated anchor GitHub, GitLab, and most
+#   Markdown renderers derive from heading text: lowercase it, replace
+#   spaces with hyphens, strip other punctuation. `## Functional` ->
+#   `#functional`. A heading WITH an assigned ID (mode 2 above) slugifies
+#   the same way, ID prefix included -- `#### FR-2: Authentication layer`
+#   -> `#fr-2-authentication-layer`. Since the agent is often reading raw
+#   text rather than a rendered page, it applies this same slugify rule
+#   itself when resolving a heading reference, rather than depending on
+#   any particular renderer.
+#   Two fragility points on an UNIDENTIFIED heading's bare anchor are
+#   accepted rather than engineered around -- assign a mode 2 ID instead
+#   wherever either one actually matters:
+#     - Reworded heading text changes the anchor -- an anchor isn't
+#       rename-safe the way an ID is.
+#     - Duplicate heading text collides. This schema itself produces
+#       duplicates on purpose (e.g. "### Endpoints" repeats once per named
+#       API under ## API); renderers disambiguate by suffixing the 2nd+
+#       occurrence (`#endpoints-1`, `#endpoints-2`...), which is fragile
+#       to get right by hand. An assigned ID sidesteps this by making the
+#       heading text (and so the anchor) unique on its own.
+#
+#   CROSS-REFERENCES
+#   Wherever an identifier is referenced from prose elsewhere in the spec,
+#   wrap it in parentheses. Two forms, with different stability:
+#     - ID only: `(FR-1)`, `(Requirements > Functional > 3)`. Stable
+#       against edits to a heading's descriptive text, since it only
+#       reads the ID token, not the full heading.
+#     - Native anchor: `(#fr-2-authentication-layer)`, or full Markdown
+#       link syntax `[FR-2](#fr-2-authentication-layer)` where a clickable
+#       reference is wanted in rendered output. Changes if the
+#       descriptive part of the heading is reworded, even though the ID
+#       prefix itself didn't change.
+#   Example: "Validate the steps as defined in (FR-1)." Parenthesizing
+#   keeps the reference visually distinct from ordinary bold text or a
+#   bare number that happens to appear in a sentence.
 #
 # CONTENTS PATTERN
 #   Default (ungrouped): a section's main entries may be listed directly
@@ -211,6 +321,43 @@ body:
 
           [high] Support CSV export, support bulk delete, [low] add dark mode
           <- inline form: [high] applies to the first two items, [low] to the third
+
+      scenarios:
+        note: >
+          Any requirement -- functional, non-functional, or technical --
+          may nest one or more concrete Given/When/Then scenarios beneath
+          it, the same indented-sub-bullet pattern User Stories uses for
+          acceptance_criteria_pairing. A scenario is the verification unit
+          for its requirement: one specific situation, one trigger, one
+          expected outcome. A requirement may carry zero scenarios (the
+          bare statement, weak end of the spectrum principle), one, or
+          several covering distinct cases/edge conditions.
+          Distinct from Testing's Unit/Integration/E2E/etc.: a scenario
+          says WHAT must hold true; Testing says HOW that gets executed
+          (framework, test level, environment). Scenarios don't replace
+          Testing -- they're the traceable content Testing's subsections
+          exercise. No separate traceability table is maintained
+          elsewhere -- the nested scenario under its requirement is the
+          only copy of this content.
+          This is Verification territory only ("did we build it right" --
+          agent-checkable against the written requirement). It is not
+          Validation ("did we build the right thing" -- whether the
+          requirement itself reflects the real need), which requires
+          human/stakeholder judgment the agent can't perform on its own;
+          `status: stable` (core.yml) already signals that sign-off has
+          happened.
+        format: |
+          - **FR-1**: [critical] The system SHALL expire a session after
+            30 minutes of inactivity.
+            - Scenario: Idle timeout
+              - GIVEN an authenticated session
+              - WHEN 30 minutes pass with no activity
+              - THEN the session is invalidated and the user must
+                re-authenticate
+            - Scenario: Activity resets timer
+              - GIVEN 29 minutes of inactivity
+              - WHEN the user performs any action
+              - THEN the inactivity timer resets to 0
 
       subsections:
         functional:
@@ -850,7 +997,9 @@ body:
       category: design
       description: >
         Testing strategy. Describes how to test, not what -- the LLM infers
-        what to test from Requirements, priority tags, and Acceptance Criteria.
+        what to test from Requirements (including any nested Scenarios --
+        see Requirements/scenarios, the most concrete source when present),
+        priority tags, and Acceptance Criteria.
         May range from framework declarations only to detailed test scenarios.
         Frameworks, coverage rules, test data, and fixtures are custom subsections
         within whichever testing domain they belong to.
@@ -862,6 +1011,12 @@ body:
         [critical] and [high] requirements imply mandatory coverage even when
         this section is silent.
         Never generate Integration or E2E tests unless explicitly prescribed here.
+        This section covers Verification only ("did we build it right" --
+        checking implementation against written requirements/scenarios).
+        Validation ("did we build the right thing" -- confirming a requirement
+        itself reflects the real need) is a human/stakeholder judgment call
+        outside what testing tooling or the agent can perform; it isn't
+        modeled as spec content here.
 
       subsections:
         unit:           "### Unit | Unit Tests           - Component/function level, isolation."
