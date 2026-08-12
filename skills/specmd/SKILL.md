@@ -25,7 +25,7 @@ Whenever a function below needs to load an existing SPEC.md file (Read, Sync), f
 1. Read the core schema file first to understand the rules of the SPEC.md framework.
 2. Read the relevant SPEC.md file from the project root. Only read other SPEC.md files if they are clearly in scope.
 3. Parse the frontmatter.
-4. Resolve the schema. The default schema is the built-in `specmd` schema. If the built-in schema is used, read the spec schema file. If a custom or extended schema is used, also read its base schemas.
+4. Resolve the schema. The default schema is the built-in `specmd` schema, used when `schema` is omitted from frontmatter. If `schema` is omitted but the body clearly doesn't match the specmd section catalog (e.g. it follows SRD's Introduction / Overall Description / Specific Requirements structure instead), infer the actual schema from content rather than forcing specmd rules onto it, and flag the missing frontmatter field to the user (see core.yml's READ BACKSTOP note). If the built-in `specmd` schema is used, read the spec schema file. If `srd` or `prd` is used, there is no sibling schema file to read -- apply the canonical outline for that standard from your own training knowledge instead (see core.yml's `schema` field for the expected outline and how it differs from `adhoc`). If a custom or extended schema is used, also read its base schemas.
 5. Parse the body according to the resolved schema.
 
 ## Functions
