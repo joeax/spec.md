@@ -240,3 +240,17 @@ validation:
   - "If the plan has been run, tasks not in a clean, caveat-free [X] state have a corresponding Implementation Log entry."
   - "No secrets are included in notes or task text."
 
+# ==============================================================================
+# ARTIFACTS FOLDER
+# ==============================================================================
+
+artifacts:
+  folder: ".specmd/"
+  note: >
+    Committing this folder to version control is optional. Execution plans
+    are disposable. The SPEC.md skill can generate an execution plan here
+    during the Plan phase, but this is optional -- the user may use their
+    own planning skill or workflow instead. No codebase-summary artifact
+    is produced; agents are expected to read the codebase directly.
+  contents:
+    execution_plan: "{spec-id}-plan-{yyyymmdd}-{n}.md -- implementation checklist"

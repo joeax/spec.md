@@ -734,7 +734,6 @@ body:
 
       subsections:
         layout:       "### Layout       - Overall structure, regions, grid, header/footer/sidebar."
-
         pages:        "### Pages        - Logical or physical pages. Web applications."
         screens:      "### Screens      - Logical or physical screens. Mobile applications."
         windows:      "### Windows      - Top-level windows or frames. Desktop applications."

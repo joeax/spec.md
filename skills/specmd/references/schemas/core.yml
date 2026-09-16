@@ -94,7 +94,7 @@ frontmatter:
   type: '"web" | "mobile" | "desktop" | "api" | "library" | "cli" | "service" | "system" | string'
   # Accepts any string for extensibility.
 
-  schema: '"specmd" | "srd" | "adhoc" | string?'
+  schema: '"specmd" | "srd" | "prd" | "adhoc" | string?'
   # Default: "specmd" (implied when omitted -- resolves to spec.yaml,
   #          the sibling body schema file; this core.yml file always applies
   #          regardless of this field's value).
@@ -175,9 +175,8 @@ frontmatter:
   # Prefer inline for a single item or a short list (up to ~50 chars) that
   # stays easy to read comma-joined -- never a one-item YAML list. Move to
   # a YAML list once it grows past that or needs one entry per line.
-  # Treated as a starting point, not the final word -- ## Requirements /
-  # ### Technical is authoritative if the two contradict. Conflicts are
-  # surfaced in the Plan phase, never silently resolved.
+  # Treated as a starting point or hint, not the final word -- ## Requirements / ### Technical is authoritative if the two contradict. 
+  # Conflicts are surfaced in the Plan phase, never silently resolved.
 
   tech:
 
@@ -450,17 +449,3 @@ extension_schema:
           permissions:        "### Permissions | Security"
 
 
-# ==============================================================================
-# ARTIFACTS FOLDER
-# ==============================================================================
-
-artifacts:
-  folder: ".specmd/"
-  note: >
-    Committing this folder to version control is optional. Execution plans
-    are disposable. The SPEC.md skill can generate an execution plan here
-    during the Plan phase, but this is optional -- the user may use their
-    own planning skill or workflow instead. No codebase-summary artifact
-    is produced; agents are expected to read the codebase directly.
-  contents:
-    execution_plan: "{spec-id}-plan-{yyyymmdd}-{n}.md -- implementation checklist"
