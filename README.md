@@ -70,7 +70,7 @@ SPEC.md also ships separate skills for planning:
 
 ## Getting Started
 
-### Existing Codebase
+### Existing Projects
 
 For existing, brownfield projects, simply prompt your agent to generate a SPEC.md file based on your existing codebase:
 
@@ -120,7 +120,7 @@ Generate an application from this spec. If a specific requirement is not defined
 
 As you progress through the development of your project, continue to evolve your SPEC.md file by adding more details, like specific UI components, API endpoints, and data models. This will help ensure that your specification remains up-to-date and relevant throughout the development process.
 
-Use the same step for **Existing Codebase** above to sync your SPEC.md with your codebase.
+Use the same step for **Existing Projects** above to sync your SPEC.md with your codebase.
 
 
 ## Development workflow
@@ -191,7 +191,7 @@ This is a spec for a Tetris clone that allows users to play the classic game in 
 - The game should have a simple UI with a grid for the Tetris blocks.
 - The game should support keyboard controls for moving and rotating the blocks.
 - The game should keep track of the score and display it on the screen.
-- The game should be responsive and work on different screen sizes.
+- [high] The game should be responsive and work on different screen sizes.
 ```
 
 ### Typical Roles
@@ -283,19 +283,22 @@ It's important to note that SPEC.md is not trying to compete with other spec-dri
 
 > If you find the SPEC.md file growing in size and complexity, you want want to consider one of these other spec-driven development workflows that are more suitable for larger teams and projects.
 
+TODO: get rid of this (or move somewhere) and replace with how SPEC.md works with other spec-driven development workflows.
+
 ### Comparison Table
 
-| | **SPEC.md** | **BMad Method** | **GitHub Spec Kit** | **Amazon Kiro** | **specs.md** |
-|---|---|---|---|---|---|
-| **What it is** | Spec format + agent skill | Multi-agent workflow framework | CLI + slash-command toolkit | Full IDE (fork of Code OSS) | Pluggable methodology framework |
-| **Tooling required** | None — install a skill | CLI installer, npm package | CLI (`uv`/`specify`) | Dedicated IDE | CLI + IDE extension |
-| **Artifacts per feature** | 1 spec file (+ 1 plan on demand) | PRD, architecture, sharded epics, story files | spec.md, plan.md, tasks.md, research.md, data-model.md, contracts/ | requirements.md, design.md, tasks.md | requirements.md, system-context.md, unit specs, bolt records |
-| **Scope** | Whole project or scoped to folder | Whole project, agile-team shaped | Single feature within a repo | Single feature within a repo | Domain/enterprise, DDD-shaped |
-| **Cross-spec linking** | Spec graph (native) | Doc handoff between agents | None | None | Bounded-context relationships |
-| **Agent model** | Any single agent | Named personas (PM, Architect, Dev, QA) | Any agent via integrations | Kiro's own agent | Phase-specific agents |
-| **Principles/conventions doc** | Architectural decisions in SPEC.md, other guidelines, conventions in AGENTS.md* | Baked into PM/Architect personas | `constitution.md` | Steering Files | `standards/` in memory-bank |
-| **Methodology opinion** | None — bring your own | Agile/Scrum-shaped | SDD, nine-article constitution | EARS notation, wave execution | DDD mandatory (AI-DLC flow) |
-| **Best for** | Solo devs, small teams, fast iteration | Teams wanting agile ceremony w/ agents | Teams wanting GitHub-native SDD | Teams fully inside Kiro's IDE | Complex domains, multi-team, regulated environments |
+| | **SPEC.md** | **BMad Method** | **GitHub Spec Kit** | **Amazon Kiro** | **specs.md** | **OpenSpec** |
+|---|---|---|---|---|---|---|
+| **What it is** | Spec format + agent skills | Multi-agent workflow framework | CLI + slash-command toolkit | Full IDE (fork of Code OSS) | Pluggable methodology framework | CLI + slash-command toolkit |
+| **Tooling required** | None — install a skill | CLI installer, npm package | CLI (`uv`/`specify`) | Dedicated IDE | CLI + IDE extension | CLI (`openspec init`, Node 20.19+) |
+| **Unit of work** | Whole component/system | Whole project → sharded stories | Single feature | Single feature | Domain/bounded context ("Bolt") | Single change |
+| **Artifacts per unit** | 1 spec file (+ 1 plan on demand) | PRD, architecture, sharded epics, story files | spec.md, plan.md, tasks.md, research.md, data-model.md, contracts/ | requirements.md, design.md, tasks.md | requirements.md, system-context.md, unit specs, bolt records | proposal.md, design.md, tasks.md, delta specs/ |
+| **Source of truth model** | Single file, updated in place | Sharded docs, updated in place | Per-feature folder, not unified | Per-feature folder, not unified | memory-bank, phase-based | Living `specs/` + ephemeral `changes/` folded back on archive |
+| **Cross-spec linking** | Spec graph (native) | Doc handoff between agents | None | None | Bounded-context relationships | None (single repo scope) |
+| **Agent model** | Any single agent | Named personas (PM, Architect, Dev, QA) | Any agent via integrations | Kiro's own agent | Phase-specific agents | Any agent via integrations (25+) |
+| **Principles/conventions doc** | Architectural decisions in SPEC.md, other guidelines, conventions in AGENTS.md* | Baked into PM/Architect personas | `constitution.md` | Steering Files | `standards/` in memory-bank | Defers to AGENTS.md |
+| **Methodology opinion** | None — bring your own | Agile/Scrum-shaped | SDD, nine-article constitution | EARS notation, wave execution | DDD mandatory (AI-DLC flow) | Propose → apply → archive |
+| **Best for** | Solo devs, small teams, fast iteration | Teams wanting agile ceremony w/ agents | Teams wanting GitHub-native SDD | Teams fully inside Kiro's IDE | Complex domains, multi-team, regulated environments | Brownfield teams wanting change review before merge |
 
 \* *SPEC.md and AGENTS.md may overlap on some guidelines, such as testing guidelines, code coverage, etc. By default SPEC.md will defer to AGENTS.md for project-level conventions, rules, and constraints.*
 
