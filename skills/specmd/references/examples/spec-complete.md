@@ -41,14 +41,15 @@ LISTS
 SECTIONS
 - Features: Describe the system capabilities and what it does for its users.
 - Requirements: Describe the functional and non-functional requirements of the system.
-  - Functional
-  - Non-Functional (note: subsections within can also exist adjacent to this subsection)
-    - Performance
-    - Reliability
-    - Accessibility
-    - Security
-    - Regulatory
-  - Technical
+  - Functional: What the system must do.
+  - Non-Functional: Quality attributes describing how the system must behave, not what it must do. (note: subsections within can also exist adjacent to this subsection)
+    - Performance: Speed, throughput, and resource-usage targets.
+    - Reliability: Availability, fault-tolerance, and recovery expectations.
+    - Accessibility: Requirements for usability by people with disabilities.
+    - Security: Requirements for protecting data and access.
+    - Regulatory: Compliance obligations the system must meet (e.g. GDPR, HIPAA).
+    - Observability (alias: Monitoring): Requirements for logging, metrics, and tracing.
+  - Technical: Imposed integration, deployment, and platform mandates.
   - Out of Scope: Describe what is explicitly not included in the system.
   - Future (alias: Planned): Describe what is planned for future releases of the system.
 - Verification: Describe how the system will be verified and validated, including testing strategies and acceptance criteria. (use in rigid requirements scenario)
@@ -57,77 +58,100 @@ SECTIONS
   - Constraints: Describe the limitations and restrictions that affect the system design and implementation.
   - Dependencies: Describe the external systems and services that the system depends on.
   - Risks: Describe the potential risks and issues that may arise during the development and operation of the system.
-- User Stories
-  - Personas (alias: Actors)
-  - Stories (alias: Contents, Entries)
-  - User Flow (alias: Flow)
-  - Acceptance Criteria (alias: Acceptance)
-- Architecture
-- Domain
-  - Entities (alias: Objects)
-  - Relationships (alias: Associations)
-  - Types (alias: Data Types)
+- User Stories: How users interact with the system, typically expressed as "As a [user], I want to [action] so that [benefit]."
+  - Personas (alias: Actors): Short definitions of the actor types referenced in stories.
+  - Stories (alias: Contents, Entries): The individual user stories, optionally grouped by theme.
+  - User Flow (alias: Flow): The primary user journey through the system.
+  - Acceptance Criteria (alias: Acceptance): Testable conditions confirming a story is complete.
+- Architecture: Describes this component's internal structure at a conceptual level -- its parts, how they fit together, and why. Cross-spec linkage is via `links`/`paths` in frontmatter, not this section.
+  - Components (alias: Systems): The component's architecturally-significant parts, described conceptually.
+  - Data Flow: How data moves between the components above, described conceptually.
+  - Integration Points (alias: Boundaries): Where this component meets the outside, described conceptually. (note: overlaps intentionally with API and External Interfaces, which carry the technical detail)
+  - Patterns (alias: Design Patterns): Recurring design or architectural patterns applied in the system.
+  - Decisions (alias: ADRs): Key architectural decisions and the rationale behind them.
+- Domain: The logical domain model -- entities, relationships, and shared types -- independent of physical storage.
+  - Entities (alias: Objects): Core domain objects and their fields.
+  - Relationships (alias: Associations): How entities relate to one another.
+  - Types (alias: Data Types): Shared constrained types referenced by entity fields (enums, ranges, formats).
 - External Interfaces: Describes the external systems and services that the system interacts with, including APIs, protocols, and data formats. All subsections are custom and can be named according to the external system or service being described.
 - Functionality: Describes the system functionality from an engineering point of view. This is implementation guidance for all elements of the system not covered by UI or API.
-  - Events
-  - Triggers
-  - Actions
-  - Data Flows
-  - Jobs
-  - Messaging
-  - Functions (alias: Lambdas)
-  - Workers
-- Folder Structure
-- UI (note: many of these subsections overlap intentionally)
-  - Layout
-  - Pages
-  - Screens
-  - Windows
-  - Views
-  - Components
-  - Navigation
-  - Styles
-  - Themes
-  - Events | Interactions
-  - Animations
-  - Accessibility
-  - Assets
-- API: Describes the API the system exposes (note: APIs consumed go in External Interfaces), including endpoints, request/response formats, and authentication methods.
+  - Events: Reactive event handlers, pub/sub subscribers, and inbound webhooks.
+  - Triggers: Non-HTTP entry points, such as timers, queues, or database change feeds.
+  - Bindings: Declarative connections wiring a function's input/output to a trigger or data source.
+  - Actions: Discrete units of business logic invoked by an event, trigger, or user action.
+  - Data Flows: How data moves between the functional pieces described in this section.
+  - Jobs: Recurring or one-off batch and scheduled processes.
+  - Messaging: Message producers, consumers, and queue/topic contracts.
+  - Functions (alias: Lambdas): Serverless function handlers.
+  - Workers: Long-running background processes and queue consumers.
+- Folder Structure: Source of truth for project organization; gaps are filled using framework conventions.
+- UI: User interface design for any UI paradigm -- web, mobile, desktop, or other. (note: many of these subsections overlap intentionally)
+  - Layout: Overall structure, regions, and grid.
+  - Pages: Logical or physical pages. Web applications.
+  - Screens: Logical or physical screens. Mobile applications.
+  - Windows: Top-level windows or frames. Desktop applications.
+  - Views: View definitions. MVC/MVVM and cross-platform contexts.
+  - Components: UI components, each with a brief description of its purpose.
+  - Widgets: Self-contained UI units. Flutter, Android, desktop.
+  - ViewGroups: Container/layout groupings. Android and hierarchical UI.
+  - Navigation: Routing, nav patterns, and deep links.
+  - Styles: Colors, typography, spacing, and design tokens.
+  - Themes: Named theme variants and how they alter styles.
+  - Events | Interactions: User gestures, drag, keyboard, and touch events.
+  - Animations: Motion design, transitions, and micro-interactions.
+  - Localization: Multi-language, RTL/LTR, and locale formatting.
+  - Accessibility: WCAG level, ARIA roles, and keyboard navigation.
+  - Assets: Images, icons, fonts, and external resources.
+- API (alias: Interface, Services): Describes the interface(s) this component exposes for others to consume -- not limited to HTTP (REST, GraphQL, gRPC, SOAP, .NET Remoting, TCP/UDP, CLI commands, MCP tools, library exports). (note: interfaces consumed go in External Interfaces)
+  - Authentication (alias: Auth, Security): How callers authenticate to this API.
+  - Versioning: How the API's version is signaled and evolved.
+  - Rate Limiting: Limits on call frequency and how they're enforced.
+  - Endpoints (alias: Paths, Operations, Channels, Methods, Tools): The callable surface, one entry per operation with its purpose.
+  - Schema (alias: DTOs, Types, Models): Wire shapes for requests, responses, and messages.
+  - Errors (alias: Error Handling): Error codes, shapes, and behavior.
 - Database: Describes any physical or logical databases used by the system. Compliments Domain, which describes the logical data model, but does not describe the physical implementation of the database.
-  - Tables
-  - Columns
-  - Indexes
-  - Relationships
-  - Constraints
-  - Views
-  - Stored Procedures
-  - Triggers
+  - Tables: The physical tables and their purpose.
+  - Columns: Column definitions within a table.
+  - Indexes: Indexes defined for query performance.
+  - Relationships: Foreign keys and physical table relationships.
+  - Constraints: Physical constraints such as uniqueness and check constraints.
+  - Views: Database views.
+  - Stored Procedures: Stored procedures and their purpose.
+  - Triggers: Database-level triggers and the actions they perform.
 - Testing: Describes the testing strategy and approach for the system, including test types, test cases, and test data.
-  - Unit
-  - Integration
-  - E2E
-  - Performance (alias: Load)
-  - Security (alias: Penetration)
-  - Accessibility
+  - Unit: Component/function level tests, in isolation.
+  - Integration: Tests across service boundaries and component interaction.
+  - E2E: Full user flow testing.
+  - Performance (alias: Load): Load and benchmark testing.
+  - Security (alias: Penetration): Security and penetration testing.
+  - Accessibility: Accessibility test scenarios and tooling.
 - Setup: Describes the steps required to set up the system for development, testing, and production environments.
-  - Prerequisites
-  - Installation (alias: Getting Started)
-  - Configuration
-  - Validation
+  - Prerequisites: What must exist before setup runs.
+  - Installation (alias: Getting Started): Steps to install and initialize the project.
+  - Configuration: Settings to configure before first run.
+  - Validation: Command to run and expected result confirming setup succeeded.
 - Deployment: Describes the steps and procedures required to deploy the system, including any necessary configuration and environment variables.
-  - Environments
-  - CI/CD (alias: Pipeline)
-  - Infrastructure (alias: IaC)
-  - Targets (alias: Hosting)
-  - Configuration (alias: Environment Variables)
-  - Secrets
+  - Environments: dev, staging, production, and other deployment targets.
+  - CI/CD (alias: Pipeline): Build and deployment automation.
+  - Infrastructure (alias: IaC): Infrastructure-as-code tooling and definitions.
+  - Targets (alias: Hosting): Where the system is hosted.
+  - Distribution (alias: Packaging, Publishing, Release): package registries, installers, code signing, auto-update, app store submission.
+  - Scalability: Auto-scaling, load balancing, and caching strategy.
+  - Rollback: Strategy, triggers, and recovery procedures.
+  - Monitoring (alias: Observability): Logging, metrics, alerting, and tracing.
+  - Configuration (alias: Environment Variables): Variable names and descriptions, never actual values.
+  - Secrets: Secrets management strategy and where secrets are stored.
+- Maintenance: Describes the ongoing versioning and compatibility policy for this component once released.
+  - Versioning: Versioning scheme used (e.g. SemVer, CalVer) and what constitutes a major/minor/patch change.
+  - Compatibility: Backward-compatibility guarantees and supported version ranges.
+  - Deprecation (alias: Support, EOL): Deprecation and end-of-life policy for old versions.
 - Issues: captures ongoing issues, bugs, and feature requests for the system. (when issue status subsections are used, then issue status tags should not be used)
-  - Open
-  - Fixed
-  - Deferred
-  - Won't Fix
-- Glossary
-- References
+  - Open: Active, unresolved issues.
+  - Fixed: Resolved issues.
+  - Deferred: Acknowledged issues not currently being addressed.
+  - Won't Fix: Issues that will not be fixed.
+- Glossary: Domain terms, jargon, and acronyms used to resolve ambiguous terminology elsewhere in the spec.
+- References: External documentation, related projects, design files, and other resources.
 
 REQUIREMENTS
 - each requirement can have nested list of scenarios
@@ -171,6 +195,19 @@ DEFINITIONS
   - 3: Standard level of detail, several bulleted items (default)
   - 4: Detailed description, many specifics; can be multiple paragraphs or lists, nested lists, expanded subsections
   - 5: Very detailed, exhaustive description; about as detailed as possible, describing every aspect of the system, including edge cases, error handling, and implementation details
+- type: The category of component being described; informs which sections are typically relevant (any section may still be used per the spectrum principle). Supported values:
+  - web: browser-based app (frontend-only or full-stack)
+  - service (alias: api, backend): backend service/API with no UI
+  - library (alias: package, sdk): reusable code library
+  - cli: command-line tool
+  - function (alias: serverless): FaaS component (Azure Functions, AWS Lambda)
+  - desktop: native/cross-platform desktop app
+  - mobile: native/cross-platform mobile app
+  - game: game or interactive entertainment app
+  - extension: plugin/extension for another app or platform
+  - infra (alias: infrastructure): IaC or platform component
+  - data-pipeline (alias: pipeline): data processing/ETL pipeline
+  - system (alias: enterprise): top-level spec describing a multi-component system; links to child specs via `links`/`paths`
 
 
 -->
