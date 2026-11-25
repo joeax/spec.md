@@ -1,0 +1,159 @@
+# SPEC.md format outline
+#
+# Annotations (in parenthesis after description text):
+#  alias: lists alternate names for the item. Example: (alias: monitoring)
+#
+#
+body:
+  title: "spec title (required)"
+  description: "What the system does, purpose and intent"
+  sections:
+    features: "System capabilities"
+    requirements:
+      description: "Requirements of the system"
+      subsections:
+        functional: "What the system must do"
+        non-functional:
+          description: "How the system must behave"
+          subsections:
+            performance: "Speed, throughput, and resource-usage targets"
+            reliability: "Availability, fault-tolerance, and recovery expectations"
+            accessibility: "Requirements for usability by people with disabilities"
+            security: "Security requirements"
+            regulatory: "Regulatory obligations"
+            observability: "Requirements for logging, metrics, and tracing. (alias: monitoring)"
+        technical: "Imposed integration, deployment, and platform mandates."
+        performance: "(maps: non-functional > accessibility)"
+        reliability: "(maps: non-functional > reliability)"
+        accessibility: "(maps: non-functional > accessibility)"
+        security: "(maps: non-functional > security)"
+        regulatory: "(maps: non-functional > regulatory)"
+        observability: "(maps: non-functional > observability)"
+        out-of-scope: "Describe what is explicitly not included in the system."
+        future: "Describe what is planned for future releases of the system. (alias: planned)"
+    verification: "Describe how the system will be verified and validated, including testing strategies and acceptance criteria."
+    considerations:
+      description: "Describe the assumptions, constraints, and other factors that affect the design and implementation of the system."
+      subsections:
+        assumptions: "Describe the assumptions made about the system and its environment."
+        constraints: "Describe the limitations and restrictions that affect the system design and implementation."
+        dependencies: "Describe the external systems and services that the system depends on."
+        risks: "Describe the potential risks and issues that may arise during the development and operation of the system."
+    user-stories:
+      description: 'How users interact with the system, typically expressed as "As a [user], I want to [action] so that [benefit]."'
+      subsections:
+        personas: "Short definitions of the actor types referenced in stories. (alias: actors)"
+        stories: "The individual user stories, optionally grouped by theme. (alias: contents, entries)"
+        user-flow: "The primary user journey through the system. (alias: flow)"
+        acceptance-criteria: "Testable conditions confirming a story is complete. (alias: acceptance)"
+    architecture:
+      description: "Describes this component's internal structure at a conceptual level -- its parts, how they fit together, and why."
+      subsections:
+        components: "The component's architecturally-significant parts, described conceptually. (alias: systems)"
+        data-flow: "How data moves between the components above, described conceptually."
+        integration-points: "Where this component meets the outside, described conceptually. (alias: boundaries)"
+        patterns: "Recurring design or architectural patterns applied in the system. (alias: design patterns)"
+        decisions: "Key architectural decisions and the rationale behind them. (alias: ADRs)"
+    domain:
+      description: "The logical domain model -- entities, relationships, and shared types -- independent of physical storage."
+      subsections:
+        entities: "Core domain objects and their fields. (alias: objects)"
+        relationships: "How entities relate to one another. (alias: associations)"
+        types: "Shared constrained types referenced by entity fields. (alias: data types)"
+    external-interfaces: "Describes the external systems and services that the system interacts with, including APIs, protocols, and data formats."
+    functionality:
+      description: "Describes the system functionality from an engineering point of view -- implementation guidance not covered by UI or API."
+      subsections:
+        events: "Reactive event handlers, pub/sub subscribers, and inbound webhooks."
+        triggers: "Non-HTTP entry points, such as timers, queues, or database change feeds."
+        bindings: "Declarative connections wiring a function's input/output to a trigger or data source."
+        actions: "Discrete units of business logic invoked by an event, trigger, or user action."
+        data-flows: "How data moves between the functional pieces described in this section."
+        jobs: "Recurring or one-off batch and scheduled processes."
+        messaging: "Message producers, consumers, and queue/topic contracts."
+        functions: "Serverless function handlers. (alias: lambdas)"
+        workers: "Long-running background processes and queue consumers."
+    folder-structure: "Source of truth for project organization; gaps are filled using framework conventions."
+    ui:
+      description: "User interface design for any UI paradigm -- web, mobile, desktop, or other."
+      subsections:
+        layout: "Overall structure, regions, and grid."
+        pages: "Logical or physical pages. Web applications."
+        screens: "Logical or physical screens. Mobile applications."
+        windows: "Top-level windows or frames. Desktop applications."
+        views: "View definitions. MVC/MVVM and cross-platform contexts."
+        components: "UI components, each with a brief description of its purpose."
+        widgets: "Self-contained UI units. Flutter, Android, desktop."
+        viewgroups: "Container/layout groupings. Android and hierarchical UI."
+        navigation: "Routing, nav patterns, and deep links."
+        styles: "Colors, typography, spacing, and design tokens."
+        themes: "Named theme variants and how they alter styles."
+        events: "User gestures, drag, keyboard, and touch events. (alias: interactions)"
+        animations: "Motion design, transitions, and micro-interactions."
+        localization: "Multi-language, RTL/LTR, and locale formatting."
+        accessibility: "WCAG level, ARIA roles, and keyboard navigation."
+        assets: "Images, icons, fonts, and external resources."
+    api:
+      description: "Describes the interface(s) this component exposes for others to consume -- not limited to HTTP. (alias: interface, services)"
+      subsections:
+        authentication: "How callers authenticate to this API. (alias: auth, security)"
+        versioning: "How the API's version is signaled and evolved."
+        rate-limiting: "Limits on call frequency and how they're enforced."
+        endpoints: "The callable surface, one entry per operation with its purpose. (alias: paths, operations, channels, methods, tools)"
+        schema: "Wire shapes for requests, responses, and messages. (alias: DTOs, types, models)"
+        errors: "Error codes, shapes, and behavior. (alias: error handling)"
+    database:
+      description: "Describes any physical or logical databases used by the system."
+      subsections:
+        tables: "The physical tables and their purpose."
+        columns: "Column definitions within a table."
+        indexes: "Indexes defined for query performance."
+        relationships: "Foreign keys and physical table relationships."
+        constraints: "Physical constraints such as uniqueness and check constraints."
+        views: "Database views."
+        stored-procedures: "Stored procedures and their purpose."
+        triggers: "Database-level triggers and the actions they perform."
+    testing:
+      description: "Describes the testing strategy and approach for the system."
+      subsections:
+        unit: "Component/function level tests, in isolation."
+        integration: "Tests across service boundaries and component interaction."
+        e2e: "Full user flow testing."
+        performance: "Load and benchmark testing. (alias: load)"
+        security: "Security and penetration testing. (alias: penetration)"
+        accessibility: "Accessibility test scenarios and tooling."
+    setup:
+      description: "Describes the steps required to set up the system for development, testing, and production environments."
+      subsections:
+        prerequisites: "What must exist before setup runs."
+        installation: "Steps to install and initialize the project. (alias: getting started)"
+        configuration: "Settings to configure before first run."
+        validation: "Command to run and expected result confirming setup succeeded."
+    deployment:
+      description: "Describes the steps and procedures required to deploy the system."
+      subsections:
+        environments: "dev, staging, production, and other deployment targets."
+        cicd: "Build and deployment automation. (alias: pipeline)"
+        infrastructure: "Infrastructure-as-code tooling and definitions. (alias: IaC)"
+        targets: "Where the system is hosted. (alias: hosting)"
+        distribution: "Package registries, installers, code signing, auto-update, app store submission. (alias: packaging, publishing, release)"
+        scalability: "Auto-scaling, load balancing, and caching strategy."
+        rollback: "Strategy, triggers, and recovery procedures."
+        monitoring: "Logging, metrics, alerting, and tracing. (alias: observability)"
+        configuration: "Variable names and descriptions, never actual values. (alias: environment variables)"
+        secrets: "Secrets management strategy and where secrets are stored."
+    maintenance:
+      description: "Describes the ongoing versioning and compatibility policy for this component once released."
+      subsections:
+        versioning: "Versioning scheme used (e.g. SemVer, CalVer) and what constitutes a major/minor/patch change."
+        compatibility: "Backward-compatibility guarantees and supported version ranges."
+        deprecation: "Deprecation and end-of-life policy for old versions. (alias: support, EOL)"
+    issues:
+      description: "Captures ongoing issues, bugs, and feature requests for the system."
+      subsections:
+        open: "Active, unresolved issues."
+        fixed: "Resolved issues."
+        deferred: "Acknowledged issues not currently being addressed."
+        wont-fix: "Issues that will not be fixed."
+    glossary: "Domain terms, jargon, and acronyms used to resolve ambiguous terminology elsewhere in the spec."
+    references: "External documentation, related projects, design files, and other resources."

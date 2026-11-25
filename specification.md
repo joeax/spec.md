@@ -4,13 +4,13 @@
 
 A SPEC.md document is structured with a specific format that includes frontmatter, a title, description, and sections. The structure is designed to be flexible and extendible, as a matter of fact, the spec doesn't even need to contain the frontmatter or sections at all.
 
-The SPEC.md structure was purposefully designed to flow from high-level concepts to detailed implementation. This is by design—to aid the agent (and human) in understanding the software system from a general to specific matter to optimize the code generation.
+The SPEC.md structure was purposefully designed to flow from high-level concepts to detailed specifications. This is by design—to aid the agent (and human) in understanding the software system from a general to specific matter to optimize the code generation.
 
 > Browse the [template](template.md) file to preview the format and syntax.
 
 ## Starter
 
-The smallest possible SPEC.md file is a single paragraph that describes the intent of the project. This is a great way to get started when specifying a new project. For more information, see the [README  "Getting Started" section](README.md#getting-started).
+The smallest possible SPEC.md file is a single paragraph that describes the intent of the project. This is a great way to get started when specifying a new project. For more information, see the [README "Getting Started" section](README.md#getting-started).
 
 ```markdown
 # Filipino Cookbook Website
@@ -44,23 +44,6 @@ This is the description of the application. It provides a brief overview of the 
 ... remaining sections
 ```
 
-## Lists
-
-Lists anywhere in a spec may be expressed in any of three styles.
-Styles may be mixed freely within the same section:
-
-1. Inline comma-delimited:  `languages: TypeScript, Python`
-2. Markdown bullet list:    
-    ```
-    - TypeScript
-    - Python
-    ```
-3. Subsections:
-    ```
-    ### TypeScript
-      description...
-    ```
-
 ## Frontmatter
 
 The frontmatter contains metadata about the SPEC.md document. It is written in YAML format and is enclosed by triple dashes (`---`) at the beginning and end.
@@ -79,6 +62,7 @@ The frontmatter contains metadata about the SPEC.md document. It is written in Y
 | tech.frameworks | No | string or list of strings | Frameworks and major libraries. |
 | tech.platform | No | string | Target runtime or platform (for example browser, Node.js, iOS). |
 | tech.dependencies | No | list of strings or DependencyObject | Additional dependencies beyond frameworks. |
+| paths | No | string or list of strings | File paths to other spec documents. |
 | links | No | object | Relationship links to other specs. |
 | links.depends-on | No | string, list of strings, LinkObject, or mixed list | Hard dependencies that should be implemented first. |
 | links.extends | No | string, list of strings, LinkObject, or mixed list | Specs this spec inherits from or specializes. |
@@ -89,6 +73,10 @@ The frontmatter contains metadata about the SPEC.md document. It is written in Y
 | metadata.created | No | string | Creation date in yyyy-mm-dd format. |
 | metadata.updated | No | string | Last update date in yyyy-mm-dd format. |
 | changelog | No | list of string | Version history entries. |
+
+### Linking Specs
+
+TBD
 
 ### Example
 
@@ -114,8 +102,8 @@ tech:
     - Axios
     - React Hook Form
     - MSW (Mock Service Worker) ^2.10.3
-meta:
-  author: Joe Agster
+metadata:
+  author: Count von Count
   updated: 2025-07-16
   changelog:
     - "2025-07-05: Initial version."
@@ -169,6 +157,52 @@ The agent matches implementation precision to the level of detail provided:
 - Precise/concrete  -> implement exactly as specified
 
 This principle applies universally to every section in the spec.
+
+### Lists
+
+Lists anywhere in a spec may be expressed in any of three styles.
+Styles may be mixed freely within the same section:
+
+1. Inline comma-delimited:  `languages: TypeScript, Python`
+2. Markdown bullet or numbered list:    
+    ```
+    - TypeScript
+    - Python
+
+    or
+
+    1. TypeScript
+    2. Python
+    ```
+3. Subsections:
+    ```
+    ### TypeScript
+      description...
+    ```
+
+### Identifiers and Cross-References
+
+Identifiers are not required, but can be used when the need to cross-reference arises. 
+
+Use bold prefixes to place identifiers on list items:
+
+```markdown
+## Features
+- **F-01**: User authentication and task management.
+```
+
+Identifiers can be placed on heading as well:
+
+```markdown
+### **F-01**: User Authentication
+```
+
+Or on paragraphs:
+
+```markdown
+**UX-01**: The theme colors are blue and white, with a dark mode option. Linked to the "UI" section for more details.
+```
+
 
 ### Section Definitions
 

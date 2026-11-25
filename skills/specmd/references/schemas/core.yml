@@ -94,20 +94,70 @@ frontmatter:
   type: '"web" | "mobile" | "desktop" | "api" | "library" | "cli" | "service" | "system" | string'
   # Accepts any string for extensibility.
 
-  schema: '"specmd" | "srd" | "adhoc" | string?'
-  # Default: "specmd" (implied when omitted -- resolves to schema-specmd.yaml,
+  schema: '"specmd" | "srd" | "prd" | "adhoc" | string?'
+  # Default: "specmd" (implied when omitted -- resolves to spec.yaml,
   #          the sibling body schema file; this core.yml file always applies
   #          regardless of this field's value).
+  # WRITE RULE: omitting this field is only valid when the spec actually
+  #          uses the default "specmd" body schema. Any spec written to a
+  #          different schema ("srd", "adhoc", "prd", or a custom/forked
+  #          schema file) MUST declare `schema:` explicitly in frontmatter --
+  #          never leave a non-default schema implied.
   # "adhoc": freeform spec, no body schema conformance expected or enforced.
   #          The agent reads content as-is -- no heading/structure validation,
   #          no warnings about unrecognized sections. Frontmatter in this
   #          file still applies.
-  # "srd":   Resolves to the software requirements document (SRD)/ISO/IEC/IEEE 29148 standard.
-  # string:  Name or path to a custom/forked body schema file
-  #          (e.g. "my-schema.yaml"). Same loading mechanism as
+  # "srd":   Software requirements document (SRD), ISO/IEC/IEEE 29148 format 
+  #          with IEEE-830-style syntax.
+  # "prd":   Product requirements document (PRD) format.
+  #          "srd" and "prd" deliberately have no sibling body schema file
+  #          the way "specmd" has spec.yaml -- unlike specmd (a novel format
+  #          invented for this project that the agent has no prior exposure
+  #          to), SRD and PRD are standard, widely-documented formats any
+  #          capable LLM already carries deep training-corpus knowledge of.
+  #          Restating their structure in-repo would be redundant with what
+  #          the model already knows, and risks drifting out of sync with
+  #          the real standard. This is NOT the same as "adhoc": adhoc has
+  #          no expected structure at all, while srd/prd have a real,
+  #          well-known one the agent applies from its own knowledge:
+  #            srd -> canonical 29148 SRS outline: Introduction (Purpose,
+  #                   Scope, Definitions/Acronyms, References, Overview) ->
+  #                   Overall Description (Product Perspective, Product
+  #                   Functions, User Characteristics, Constraints,
+  #                   Assumptions and Dependencies) -> Specific Requirements
+  #                   (External Interface Requirements, Functional
+  #                   Requirements, Performance Requirements, Design
+  #                   Constraints, Software System Attributes, other
+  #                   requirements as needed) -> Verification -> Appendices.
+  #                   Mandatory requirements use "shall"; "should"/"may" for
+  #                   recommended/optional. Number requirements for
+  #                   traceability (e.g. FR-01, PERF-01).
+  #            prd -> canonical PRD outline: Overview/Problem Statement ->
+  #                   Goals and Success Metrics -> User Personas ->
+  #                   Features/Requirements -> Out of Scope -> Timeline/
+  #                   Milestones, adapted to the user's own conventions
+  #                   where they're explicit (e.g. an existing PRD template
+  #                   the user provides or references).
+  #          Frontmatter (this file) still applies universally underneath
+  #          either format -- only the body structure differs. If the user
+  #          supplies their own SRD/PRD template or an org-specific
+  #          convention, that takes precedence over the canonical outline
+  #          above.
+  # string:  Name of a custom/forked body schema file already loaded into context
+  #          (e.g. "my-schema.yml"). Same loading mechanism as
   #          extends-schema, but replaces the body schema entirely rather
   #          than adding to it. Frontmatter is never forked -- core.yml
   #          is universal by design.
+  # READ BACKSTOP: if `schema` is missing when reading an existing spec,
+  #          do not silently default to "specmd" without checking. First
+  #          test whether the body's structure actually matches the
+  #          specmd section catalog (spec.yml). If it clearly matches a
+  #          different known format instead -- e.g. SRD's Introduction /
+  #          Overall Description / Specific Requirements structure -- infer
+  #          that schema from content for parsing purposes, and flag the
+  #          missing frontmatter field to the user as a gap to fix rather
+  #          than forcing specmd section rules onto content that was never
+  #          written to them.
 
   extends-schema: '[string]?'
   # Extension schema files that add or override sections in this spec's
@@ -125,9 +175,8 @@ frontmatter:
   # Prefer inline for a single item or a short list (up to ~50 chars) that
   # stays easy to read comma-joined -- never a one-item YAML list. Move to
   # a YAML list once it grows past that or needs one entry per line.
-  # Treated as a starting point, not the final word -- ## Requirements /
-  # ### Technical is authoritative if the two contradict. Conflicts are
-  # surfaced in the Plan phase, never silently resolved.
+  # Treated as a starting point or hint, not the final word -- ## Requirements / ### Technical is authoritative if the two contradict. 
+  # Conflicts are surfaced in the Plan phase, never silently resolved.
 
   tech:
 
@@ -400,17 +449,3 @@ extension_schema:
           permissions:        "### Permissions | Security"
 
 
-# ==============================================================================
-# ARTIFACTS FOLDER
-# ==============================================================================
-
-artifacts:
-  folder: ".specmd/"
-  note: >
-    Committing this folder to version control is optional. Execution plans
-    are disposable. The SPEC.md skill can generate an execution plan here
-    during the Plan phase, but this is optional -- the user may use their
-    own planning skill or workflow instead. No codebase-summary artifact
-    is produced; agents are expected to read the codebase directly.
-  contents:
-    execution_plan: "{spec-id}-plan-{yyyymmdd}-{n}.md -- implementation checklist"

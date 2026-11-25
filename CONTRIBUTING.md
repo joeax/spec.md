@@ -5,6 +5,7 @@ Thanks for your interest in improving SPEC.md.
 ## Before You Start
 
 - Read the [README](README.md) and existing docs.
+- Understand the **Guiding Principles** of the project, specifically the non-opinionated and interoperable nature of SPEC.md.
 - Search existing [issues](../../issues) before opening a new one.
 - Keep changes focused and scoped to one topic.
 
